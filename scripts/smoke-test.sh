@@ -8,7 +8,7 @@ PORT="${APP_PORT:-8080}"
 
 docker image inspect "$IMAGE" --format '{{.Id}} {{.Architecture}}'
 
-docker run -d --name t -p "$PORT:$PORT" \
+docker run -d --name mail-mcp-smoke -p "$PORT:$PORT" \
   -e APP_PORT="$PORT" \
   -e NGINX_HTTP_PORT="$PORT" \
   -e APP_KEY="base64:$(openssl rand -base64 32)" \
@@ -23,7 +23,7 @@ for _ in $(seq 1 45); do
   sleep 2
 done
 
-docker logs t 2>&1 | tail -30
+docker logs mail-mcp-smoke 2>&1 | tail -30
 
 curl -fsS "http://localhost:$PORT/up" >/dev/null
 test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/login")" = 200
@@ -37,7 +37,7 @@ code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: applicat
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' "http://localhost:$PORT/mcp/mail")
 test "$code" = 401
 
-docker exec t php artisan migrate:status | tail -3
-docker exec t test -f storage/oauth-private.key
+docker exec mail-mcp-smoke php artisan migrate:status | tail -3
+docker exec mail-mcp-smoke test -f storage/oauth-private.key
 
 echo "SMOKE TEST OK"

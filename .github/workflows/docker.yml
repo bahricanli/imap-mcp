@@ -42,7 +42,7 @@ jobs:
         if: failure()
         run: |
           [ -f smoke.log ] && tail -60 smoke.log | sed 's/^/::error::/' | head -60
-          docker logs t 2>&1 | tail -40 | sed 's/^/::error::[container] /' || true
+          docker logs mail-mcp-smoke 2>&1 | tail -40 | sed 's/^/::error::[container] /' || true
 
       # 2) Testler geçtiyse çok mimarili imajı GHCR'ye gönder.
       - name: Metadata
