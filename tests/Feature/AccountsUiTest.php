@@ -177,13 +177,13 @@ class AccountsUiTest extends TestCase
             'id' => 'ref1', 'access_token_id' => 'tok1', 'revoked' => false, 'expires_at' => now()->addDays(30),
         ]);
 
-        $this->actingAs($user)->get('/connections')->assertOk()->assertSee('Claude');
+        $this->actingAs($user)->get('/connections')->assertOk()->assertDontSee('Henüz bağlı uygulama yok')->assertSee("connections/{$clientId}", false);
 
         $this->actingAs($user)->delete("/connections/{$clientId}")->assertRedirect(route('connections.index'));
 
         $this->assertTrue((bool) DB::table('oauth_access_tokens')->where('id', 'tok1')->value('revoked'));
         $this->assertTrue((bool) DB::table('oauth_refresh_tokens')->where('id', 'ref1')->value('revoked'));
-        $this->actingAs($user)->get('/connections')->assertDontSee('Bağlantıyı kes');
+        $this->actingAs($user)->get('/connections')->assertSee('Henüz bağlı uygulama yok');
     }
 
     public function test_password_change(): void
