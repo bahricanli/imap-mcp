@@ -86,8 +86,9 @@ class OAuthFlowTest extends TestCase
 
         $this->postJson('/', ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'tools/list'], $headers)
             ->assertOk()
-            ->assertSee('search-emails')
-            ->assertSee('get-email');
+            ->assertSee('"name":"search-emails"', false)
+            ->assertSee('"name":"get-email"', false)
+            ->assertDontSee('-tool"', false);
 
         // 8) Refresh token çalışır
         $this->postJson('/oauth/token', [

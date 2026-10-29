@@ -9,10 +9,12 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
+#[Name('search-emails')]
 #[Description('Bir klasörde e-posta arar ve en yeniden eskiye özet listesi (uid, tarih, gönderen, konu, okundu mu) döner. Gövde dönmez; içerik için get-email kullan. Hiç kriter verilmezse son 7 gün listelenir.')]
 class SearchEmailsTool extends Tool
 {

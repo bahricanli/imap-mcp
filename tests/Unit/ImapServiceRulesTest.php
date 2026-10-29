@@ -62,4 +62,17 @@ class ImapServiceRulesTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->service()->normalizeUids(range(1, 51));
     }
+
+    public function test_decodes_mime_encoded_headers(): void
+    {
+        $s = $this->service();
+
+        $this->assertSame('Bash Street Worlds – written with Neil Gaiman',
+            $s->decodeHeader('=?UTF-8?q?Bash_Street_Worlds_=E2=80=93_written_with_Neil_Gaiman?='));
+        $this->assertSame("Haber önerisi: CERN'in lise yarışmasını kazanan Türk takımı deneyini CERN'de yaptı",
+            $s->decodeHeader('=?UTF-8?B?SGFiZXIgw7ZuZXJpc2k6IENFUk4naW4gbGlzZSB5YXLEscWfbWFzxLFuxLEga2F6YW5hbg==?= =?UTF-8?B?IFTDvHJrIHRha8SxbcSxIGRlbmV5aW5pIENFUk4nZGUgeWFwdMSx?='));
+        $this->assertSame('Share Your Feedback with TikTok — Up to $300',
+            $s->decodeHeader('Share Your Feedback with TikTok =?UTF-8?B?4oCU?= Up to $300'));
+        $this->assertSame('Düz Türkçe konu', $s->decodeHeader('Düz Türkçe konu'));
+    }
 }

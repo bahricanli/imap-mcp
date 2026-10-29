@@ -164,7 +164,9 @@ class ImapService
 
         $messages = $query->limit(min((int) ($criteria['limit'] ?? 20), self::MAX_BATCH))->get();
 
-        return $messages->map(fn (Message $m) => $this->summary($m))->values()->all();
+        // En yeniden eskiye (sunucu sırası her zaman güvenilir değil).
+        return $messages->map(fn (Message $m) => $this->summary($m))
+            ->sortByDesc('uid')->values()->all();
     }
 
     public function message(Client $client, string $folderPath, int $uid): array
@@ -410,9 +412,28 @@ class ImapService
             'date'    => $date?->toIso8601String(),
             'from'    => $this->addresses($m->getFrom()),
             'to'      => $this->addresses($m->getTo()),
-            'subject' => (string) $m->getSubject(),
+            'subject' => $this->decodeHeader((string) $m->getSubject()),
             'seen'    => $m->getFlags()->has('seen'),
         ];
+    }
+
+    /**
+     * RFC 2047 kodlu başlıkları (=?UTF-8?B?...?= / =?UTF-8?Q?...?=) çözer.
+     * Kodlama yoksa veya çözülemezse metni olduğu gibi döner.
+     */
+    public function decodeHeader(string $value): string
+    {
+        if (! str_contains($value, '=?')) {
+            return $value;
+        }
+
+        $decoded = @iconv_mime_decode($value, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
+
+        if ($decoded === false || $decoded === '') {
+            $decoded = mb_decode_mimeheader($value);
+        }
+
+        return trim(preg_replace('/\s+/u', ' ', $decoded));
     }
 
     private function addresses($attribute): array
@@ -422,7 +443,7 @@ class ImapService
         }
 
         return collect($attribute->all())
-            ->map(fn ($a) => trim(($a->personal ? "{$a->personal} " : '')."<{$a->mail}>"))
+            ->map(fn ($a) => trim(($a->personal ? $this->decodeHeader((string) $a->personal).' ' : '')."<{$a->mail}>"))
             ->values()
             ->all();
     }

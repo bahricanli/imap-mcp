@@ -9,10 +9,12 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 
 #[IsDestructive(false)]
+#[Name('create-folder')]
 #[Description('Yeni bir posta klasörü oluşturur. Alt klasör için sunucunun ayırıcısını kullan (list-folders path\'lerine bak; örn. "INBOX/Faturalar" veya "INBOX.Faturalar"). Türkçe karakter desteklenir.')]
 class CreateFolderTool extends Tool
 {

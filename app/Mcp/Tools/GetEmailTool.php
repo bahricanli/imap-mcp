@@ -9,8 +9,10 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
+use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
+#[Name('get-email')]
 #[Description(<<<'TXT'
 UID ile tek bir e-postanın başlıklarını, düz metin gövdesini (uzunsa kesilir) ve ek listesini getirir.
 Varsayılan olarak mesajı okundu işaretlemez.
