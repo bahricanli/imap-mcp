@@ -14,15 +14,15 @@ class WebAuthTest extends TestCase
     {
         $this->get('/', ['Accept' => 'text/html'])->assertRedirect('/panel');
         $this->get('/panel')->assertRedirect(route('login'));
-        $this->get('/panel/login')->assertOk()->assertSee('Giriş yap');
-        $this->get('/login')->assertRedirect('/panel/login');
+        $this->get('/login')->assertOk()->assertSee('Giriş yap');
+        $this->get('/panel/login')->assertRedirect('/login');
     }
 
     public function test_user_can_log_in(): void
     {
         $user = User::factory()->create(['password' => 'dogru-sifre-123']);
 
-        $this->post('/panel/login', ['email' => $user->email, 'password' => 'dogru-sifre-123'])
+        $this->post('/login', ['email' => $user->email, 'password' => 'dogru-sifre-123'])
             ->assertRedirect(route('accounts.index'));
 
         $this->assertAuthenticatedAs($user);
@@ -32,7 +32,7 @@ class WebAuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post('/panel/login', ['email' => $user->email, 'password' => 'yanlis'])
+        $this->post('/login', ['email' => $user->email, 'password' => 'yanlis'])
             ->assertSessionHasErrors('email');
 
         $this->assertGuest();

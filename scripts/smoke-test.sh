@@ -29,7 +29,7 @@ curl -fsS "http://localhost:$PORT/up" >/dev/null
 FWD=(-H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Host: mail-mcp.example.com')
 
 # Web arayüzü /panel altında; tarayıcıyla kök adrese gelen panele yönlenir.
-test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/panel/login")" = 200
+test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/login")" = 200
 test "$(curl -s -o /dev/null -w '%{redirect_url}' "${FWD[@]}" -H 'Accept: text/html' "http://localhost:$PORT/")" = "https://mail-mcp.example.com/panel"
 # MCP istemcisinin SSE GET'i desteklenmiyor: 405 + Allow: POST
 test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: text/event-stream' "http://localhost:$PORT/")" = 405

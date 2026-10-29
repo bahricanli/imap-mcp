@@ -6,20 +6,21 @@ use App\Http\Controllers\MailAccountController;
 use App\Http\Controllers\PasswordController;
 use Illuminate\Support\Facades\Route;
 
-// Kök adres (/) MCP sunucusuna ayrılmış (routes/ai.php); web arayüzü /panel altında.
+// Kök adres (/) MCP sunucusuna ayrılmış (routes/ai.php).
+// Giriş /login'de, web arayüzü /panel altında.
+Route::middleware('guest')->group(function () {
+    Route::get('login', [LoginController::class, 'show'])->name('login');
+    Route::post('login', [LoginController::class, 'store'])->middleware('throttle:5,1');
+});
+
+Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
 Route::prefix('panel')->group(function () {
     Route::get('/', fn () => auth()->check()
         ? redirect()->route('accounts.index')
         : redirect()->route('login'))->name('panel');
 
-    Route::middleware('guest')->group(function () {
-        Route::get('login', [LoginController::class, 'show'])->name('login');
-        Route::post('login', [LoginController::class, 'store'])->middleware('throttle:5,1');
-    });
-
     Route::middleware('auth')->group(function () {
-        Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
-
         Route::resource('accounts', MailAccountController::class)->except('show');
         Route::post('accounts/{account}/test', [MailAccountController::class, 'test'])
             ->middleware('throttle:10,1')->name('accounts.test');
@@ -32,6 +33,6 @@ Route::prefix('panel')->group(function () {
     });
 });
 
-// Eski yollar (ilk sürüm) → yeni yerleri.
-Route::redirect('/login', '/panel/login');
+// Eski yollar → yeni yerleri.
+Route::redirect('/panel/login', '/login');
 Route::redirect('/accounts', '/panel/accounts');
