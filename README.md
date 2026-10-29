@@ -38,7 +38,7 @@ Claude `search-emails` ile mesajları bulur. Ardından her biri için `get-email
 
 ### Web arayüzü
 
-`https://alanadin/` adresinde giriş yaptıktan sonra:
+`https://alanadin/panel` adresinde giriş yaptıktan sonra (MCP sunucusu kök adreste, `https://alanadin/`):
 
 - **Posta hesapları:** ekle / düzenle / sil, "Bağlantıyı test et", yazma izni ve Çöp klasörü ayarı.
   Hesap kaydedilmeden önce IMAP bağlantısı test edilir; düzenlemede şifre boş bırakılırsa mevcut şifre korunur.
@@ -114,15 +114,15 @@ php artisan mail:add-account sen@ornek.com
 
 ## Bağlanma
 
-- **claude.ai:** Ayarlar → Connectors → Add custom connector → `https://alanadin/mcp/mail`.
+- **claude.ai:** Ayarlar → Connectors → Add custom connector → `https://alanadin/` (kök adres).
   Tarayıcıda giriş ekranı, ardından onay ekranı açılır.
-- **Claude Code:** `claude mcp add --transport http mail https://alanadin/mcp/mail`
-- **Test:** `php artisan mcp:inspector mcp/mail`
+- **Claude Code:** `claude mcp add --transport http mail https://alanadin/`
+- **Test:** `php artisan mcp:inspector /`
 
 ## Nasıl çalışıyor
 
 ```
-Claude ──OAuth 2.1 (PKCE + DCR)──▶ Passport ──▶ /mcp/mail (auth:api)
+Claude ──OAuth 2.1 (PKCE + DCR)──▶ Passport ──▶ / (auth:api)
                                                   │
                                     MailServer ── tools ── ImapService ──IMAP/TLS──▶ posta sunucusu
                                                   │

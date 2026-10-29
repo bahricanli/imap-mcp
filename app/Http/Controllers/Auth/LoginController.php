@@ -36,7 +36,7 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         // Passport'un /oauth/authorize isteğine geri döner.
-        return redirect()->intended('/');
+        return redirect()->intended(route('accounts.index'));
     }
 
     public function destroy(Request $request): RedirectResponse

@@ -52,6 +52,6 @@
     <section class="card">
         <h2>Claude'a bağlama</h2>
         <p class="muted" style="margin-bottom:8px">claude.ai → Ayarlar → Connectors → Add custom connector bölümüne şu adresi ekle:</p>
-        <code>{{ url('/mcp/mail') }}</code>
+        <code>{{ url('/') }}</code>
     </section>
 @endsection

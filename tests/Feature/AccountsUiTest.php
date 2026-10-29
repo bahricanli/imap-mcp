@@ -42,7 +42,7 @@ class AccountsUiTest extends TestCase
 
     public function test_pages_require_login(): void
     {
-        foreach (['/accounts', '/accounts/create', '/connections', '/password'] as $url) {
+        foreach (['/panel/accounts', '/panel/accounts/create', '/panel/connections', '/panel/password'] as $url) {
             $this->get($url)->assertRedirect(route('login'));
         }
     }
@@ -52,9 +52,9 @@ class AccountsUiTest extends TestCase
         $user = User::factory()->create();
         $this->imapWorks();
 
-        $this->actingAs($user)->get('/accounts/create')->assertOk()->assertSee('Posta hesabı ekle');
+        $this->actingAs($user)->get('/panel/accounts/create')->assertOk()->assertSee('Posta hesabı ekle');
 
-        $this->actingAs($user)->post('/accounts', $this->payload())
+        $this->actingAs($user)->post('/panel/accounts', $this->payload())
             ->assertRedirect(route('accounts.index'))
             ->assertSessionHas('status');
 
@@ -65,7 +65,7 @@ class AccountsUiTest extends TestCase
         $this->assertSame('imap-sifresi', $account->password);
         $this->assertNotSame('imap-sifresi', DB::table('mail_accounts')->value('password'));
 
-        $this->actingAs($user)->get('/accounts')->assertOk()->assertSee('kalehost')->assertDontSee('imap-sifresi');
+        $this->actingAs($user)->get('/panel/accounts')->assertOk()->assertSee('kalehost')->assertDontSee('imap-sifresi');
     }
 
     public function test_account_is_not_saved_when_connection_fails(): void
@@ -73,8 +73,8 @@ class AccountsUiTest extends TestCase
         $user = User::factory()->create();
         $this->imapWorks(false);
 
-        $this->actingAs($user)->from('/accounts/create')->post('/accounts', $this->payload())
-            ->assertRedirect('/accounts/create')
+        $this->actingAs($user)->from('/panel/accounts/create')->post('/panel/accounts', $this->payload())
+            ->assertRedirect('/panel/accounts/create')
             ->assertSessionHas('error', fn ($e) => str_contains($e, 'şifre hatalı'));
 
         $this->assertDatabaseCount('mail_accounts', 0);
@@ -85,7 +85,7 @@ class AccountsUiTest extends TestCase
         $user = User::factory()->create();
         $this->imapWorks();
 
-        $this->actingAs($user)->post('/accounts', $this->payload(['label' => 'boşluk var', 'host' => 'kötü host', 'password' => '']))
+        $this->actingAs($user)->post('/panel/accounts', $this->payload(['label' => 'boşluk var', 'host' => 'kötü host', 'password' => '']))
             ->assertSessionHasErrors(['label', 'host', 'password']);
     }
 
@@ -98,7 +98,7 @@ class AccountsUiTest extends TestCase
         $imap->shouldNotReceive('connect');
         $this->app->instance(ImapService::class, $imap);
 
-        $this->actingAs($user)->put("/accounts/{$account->id}", $this->payload([
+        $this->actingAs($user)->put("/panel/accounts/{$account->id}", $this->payload([
             'label' => 'kalehost', 'password' => '', 'allow_write' => '1', 'trash_folder' => 'INBOX/Trash',
         ]))->assertRedirect(route('accounts.index'));
 
@@ -115,7 +115,7 @@ class AccountsUiTest extends TestCase
         $b = MailAccount::create(['user_id' => $user->id] + $this->payload(['label' => 'b', 'is_default' => false]));
         $this->imapWorks();
 
-        $this->actingAs($user)->put("/accounts/{$b->id}", $this->payload(['label' => 'b', 'password' => '', 'is_default' => '1']));
+        $this->actingAs($user)->put("/panel/accounts/{$b->id}", $this->payload(['label' => 'b', 'password' => '', 'is_default' => '1']));
 
         $this->assertFalse($a->fresh()->is_default);
         $this->assertTrue($b->fresh()->is_default);
@@ -128,11 +128,11 @@ class AccountsUiTest extends TestCase
         $account = MailAccount::create(['user_id' => $owner->id] + $this->payload(['label' => 'gizli']));
         $this->imapWorks();
 
-        $this->actingAs($other)->get("/accounts/{$account->id}/edit")->assertNotFound();
-        $this->actingAs($other)->put("/accounts/{$account->id}", $this->payload())->assertNotFound();
-        $this->actingAs($other)->delete("/accounts/{$account->id}")->assertNotFound();
-        $this->actingAs($other)->post("/accounts/{$account->id}/test")->assertNotFound();
-        $this->actingAs($other)->get('/accounts')->assertDontSee('gizli');
+        $this->actingAs($other)->get("/panel/accounts/{$account->id}/edit")->assertNotFound();
+        $this->actingAs($other)->put("/panel/accounts/{$account->id}", $this->payload())->assertNotFound();
+        $this->actingAs($other)->delete("/panel/accounts/{$account->id}")->assertNotFound();
+        $this->actingAs($other)->post("/panel/accounts/{$account->id}/test")->assertNotFound();
+        $this->actingAs($other)->get('/panel/accounts')->assertDontSee('gizli');
 
         $this->assertDatabaseHas('mail_accounts', ['id' => $account->id]);
     }
@@ -143,7 +143,7 @@ class AccountsUiTest extends TestCase
         $a = MailAccount::create(['user_id' => $user->id] + $this->payload(['label' => 'a', 'is_default' => true]));
         $b = MailAccount::create(['user_id' => $user->id] + $this->payload(['label' => 'b', 'is_default' => false]));
 
-        $this->actingAs($user)->delete("/accounts/{$a->id}")->assertRedirect(route('accounts.index'));
+        $this->actingAs($user)->delete("/panel/accounts/{$a->id}")->assertRedirect(route('accounts.index'));
 
         $this->assertModelMissing($a);
         $this->assertTrue($b->fresh()->is_default);
@@ -155,8 +155,8 @@ class AccountsUiTest extends TestCase
         $account = MailAccount::create(['user_id' => $user->id] + $this->payload(['label' => 'kalehost']));
         $this->imapWorks();
 
-        $this->actingAs($user)->from('/accounts')->post("/accounts/{$account->id}/test")
-            ->assertRedirect('/accounts')
+        $this->actingAs($user)->from('/panel/accounts')->post("/panel/accounts/{$account->id}/test")
+            ->assertRedirect('/panel/accounts')
             ->assertSessionHas('status', fn ($s) => str_contains($s, '12 mesaj'));
     }
 
@@ -177,24 +177,24 @@ class AccountsUiTest extends TestCase
             'id' => 'ref1', 'access_token_id' => 'tok1', 'revoked' => false, 'expires_at' => now()->addDays(30),
         ]);
 
-        $this->actingAs($user)->get('/connections')->assertOk()->assertDontSee('Henüz bağlı uygulama yok')->assertSee("connections/{$clientId}", false);
+        $this->actingAs($user)->get('/panel/connections')->assertOk()->assertDontSee('Henüz bağlı uygulama yok')->assertSee("connections/{$clientId}", false);
 
-        $this->actingAs($user)->delete("/connections/{$clientId}")->assertRedirect(route('connections.index'));
+        $this->actingAs($user)->delete("/panel/connections/{$clientId}")->assertRedirect(route('connections.index'));
 
         $this->assertTrue((bool) DB::table('oauth_access_tokens')->where('id', 'tok1')->value('revoked'));
         $this->assertTrue((bool) DB::table('oauth_refresh_tokens')->where('id', 'ref1')->value('revoked'));
-        $this->actingAs($user)->get('/connections')->assertSee('Henüz bağlı uygulama yok');
+        $this->actingAs($user)->get('/panel/connections')->assertSee('Henüz bağlı uygulama yok');
     }
 
     public function test_password_change(): void
     {
         $user = User::factory()->create(['password' => 'eski-sifre-12345']);
 
-        $this->actingAs($user)->put('/password', [
+        $this->actingAs($user)->put('/panel/password', [
             'current_password' => 'yanlis', 'password' => 'yeni-sifre-12345', 'password_confirmation' => 'yeni-sifre-12345',
         ])->assertSessionHasErrors('current_password');
 
-        $this->actingAs($user)->put('/password', [
+        $this->actingAs($user)->put('/panel/password', [
             'current_password' => 'eski-sifre-12345', 'password' => 'yeni-sifre-12345', 'password_confirmation' => 'yeni-sifre-12345',
         ])->assertRedirect(route('password.edit'));
 

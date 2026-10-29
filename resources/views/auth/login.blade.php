@@ -4,7 +4,7 @@
     <h1>Mail MCP</h1>
     <p class="muted">Bir yapay zeka istemcisine posta kutularına erişim vermek için giriş yap.</p>
 
-    <form method="POST" action="{{ url('/login') }}">
+    <form method="POST" action="{{ route('login') }}">
         @csrf
         <label for="email">E-posta</label>
         <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username">
