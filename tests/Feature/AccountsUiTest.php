@@ -200,4 +200,19 @@ class AccountsUiTest extends TestCase
 
         $this->assertTrue(Hash::check('yeni-sifre-12345', $user->fresh()->password));
     }
+
+    public function test_short_password_shows_server_side_error(): void
+    {
+        $user = User::factory()->create(['password' => 'eski-sifre-12345']);
+
+        $this->actingAs($user)->get('/panel/password')->assertOk()->assertDontSee('minlength', false);
+
+        $this->actingAs($user)->from('/panel/password')->put('/panel/password', [
+            'current_password' => 'eski-sifre-12345', 'password' => 'kisa', 'password_confirmation' => 'kisa',
+        ])->assertRedirect('/panel/password')->assertSessionHasErrors(['password' => 'Yeni şifre en az 12 karakter olmalı.']);
+
+        $this->actingAs($user)->from('/panel/password')->put('/panel/password', [
+            'current_password' => 'eski-sifre-12345', 'password' => 'yeni-sifre-12345', 'password_confirmation' => 'baska-sifre-1234',
+        ])->assertSessionHasErrors(['password' => 'Yeni şifreler eşleşmiyor.']);
+    }
 }

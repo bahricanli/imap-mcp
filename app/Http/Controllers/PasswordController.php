@@ -21,7 +21,9 @@ class PasswordController extends Controller
             'current_password' => ['required', 'current_password'],
             'password'         => ['required', 'confirmed', Password::min(12)],
         ], [
+            'current_password.required'         => 'Mevcut şifreni yaz.',
             'current_password.current_password' => 'Mevcut şifre hatalı.',
+            'password.required'                 => 'Yeni şifreyi yaz.',
             'password.confirmed'                => 'Yeni şifreler eşleşmiyor.',
             'password.min'                      => 'Yeni şifre en az 12 karakter olmalı.',
         ]);
