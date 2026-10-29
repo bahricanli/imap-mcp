@@ -59,8 +59,9 @@
         legend { font-size:13px; color:var(--muted); padding:0 6px; }
     </style>
 </head>
-<body class="{{ auth()->check() ? '' : 'center' }}">
-    @auth
+@php($bare = ($bare ?? false) || ! auth()->check())
+<body class="{{ $bare ? 'center' : '' }}">
+    @unless ($bare)
         <div class="wrap">
             <nav>
                 <span class="brand">Mail MCP</span>
@@ -89,6 +90,6 @@
         <main class="card">
             @yield('content')
         </main>
-    @endauth
+    @endunless
 </body>
 </html>

@@ -22,8 +22,9 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // MCP istemcisi bağlanırken gösterilen onay ekranı (laravel/mcp paketinin hazır görünümü).
-        Passport::authorizationView(fn (array $parameters) => view('mcp::authorize', $parameters));
+        // MCP istemcisi bağlanırken gösterilen onay ekranı. laravel/mcp'nin hazır görünümü
+        // Vite derlemesi istediği için kendi görünümümüz kullanılıyor.
+        Passport::authorizationView(fn (array $parameters) => view('auth.authorize', $parameters));
 
         Gate::define('admin', fn (User $user) => $user->isAdmin());
 
