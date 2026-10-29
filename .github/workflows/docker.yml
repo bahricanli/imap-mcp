@@ -41,8 +41,10 @@ jobs:
       - name: Report smoke failure
         if: failure()
         run: |
-          [ -f smoke.log ] && tail -60 smoke.log | sed 's/^/::error::/' | head -60
-          docker logs mail-mcp-smoke 2>&1 | tail -40 | sed 's/^/::error::[container] /' || true
+          # GitHub adım başına 10 annotation gösterir: logları tek, çok satırlı mesajda topla.
+          enc() { sed -e 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}'; }
+          echo "::error title=container logs::$(docker logs mail-mcp-smoke 2>&1 | tail -80 | enc)"
+          echo "::error title=smoke log::$(grep -v '^+ \(sleep\|for\|curl -fsS http://localhost:[0-9]*/up\)' smoke.log | tail -40 | enc)"
 
       # 2) Testler geçtiyse çok mimarili imajı GHCR'ye gönder.
       - name: Metadata
