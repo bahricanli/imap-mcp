@@ -33,7 +33,7 @@ jobs:
 
       - name: Smoke test (proxy arkası gibi)
         env:
-          APP_PORT: '9000'   # varsayılan dışı bir port: .env'den port değiştirme de test edilir
+          APP_PORT: '8090'   # varsayılan dışı bir port: .env'den port değiştirme de test edilir
         run: |
           set -o pipefail
           bash scripts/smoke-test.sh imap-mcp:test 2>&1 | tee smoke.log

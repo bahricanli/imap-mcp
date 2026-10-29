@@ -33,7 +33,7 @@ curl -o .env https://raw.githubusercontent.com/bahricanli/imap-mcp/main/.env.exa
 #   APP_URL=https://mail-mcp.ornek.com          (NPM'deki alan adı)
 #   APP_KEY=   ← aşağıdaki komutun çıktısı
 #   NPM_NETWORK=npm_default                      (NPM'in Docker ağı)
-#   APP_PORT=8080                                (konteynerin dinlediği port)
+#   APP_PORT=8080                                (konteynerin dinlediği port; 9000 olamaz)
 echo "base64:$(openssl rand -base64 32)"
 
 docker compose up -d
