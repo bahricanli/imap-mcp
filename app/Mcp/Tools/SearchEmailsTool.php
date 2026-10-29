@@ -6,6 +6,7 @@ use App\Services\ImapService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
@@ -15,7 +16,7 @@ use Throwable;
 #[Description('Bir klasörde e-posta arar ve en yeniden eskiye özet listesi (uid, tarih, gönderen, konu, okundu mu) döner. Gövde dönmez; içerik için get-email kullan. Hiç kriter verilmezse son 7 gün listelenir.')]
 class SearchEmailsTool extends Tool
 {
-    public function handle(Request $request, ImapService $imap): Response
+    public function handle(Request $request, ImapService $imap): Response|ResponseFactory
     {
         $criteria = $request->validate([
             'account' => 'nullable|string',
