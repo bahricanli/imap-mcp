@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+            // MCP istemcileri her durumda 401 + WWW-Authenticate almalı (login'e yönlendirme değil),
+            // yoksa OAuth keşfi başlamaz.
+            fn (Request $request) => $request->is('api/*', 'mcp/*') || $request->expectsJson(),
         );
     })->create();

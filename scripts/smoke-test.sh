@@ -34,9 +34,12 @@ echo "$meta"
 test "$(jq -r .authorization_endpoint <<<"$meta")" = "https://mail-mcp.example.com/oauth/authorize"
 test "$(jq -r .registration_endpoint <<<"$meta")" = "https://mail-mcp.example.com/oauth/register"
 
-code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+headers=$(curl -s -o /dev/null -D - -X POST -H 'Content-Type: application/json' \
+  -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Host: mail-mcp.example.com' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' "http://localhost:$PORT/mcp/mail")
-test "$code" = 401
+echo "$headers"
+grep -q '^HTTP/[0-9.]* 401' <<<"$headers"
+grep -qi '^www-authenticate: Bearer .*resource_metadata="https://mail-mcp.example.com/.well-known/oauth-protected-resource' <<<"$headers"
 
 docker exec mail-mcp-smoke php artisan migrate:status | tail -3
 docker exec mail-mcp-smoke test -f storage/oauth-private.key

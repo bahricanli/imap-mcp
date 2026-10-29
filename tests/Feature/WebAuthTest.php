@@ -39,6 +39,13 @@ class WebAuthTest extends TestCase
     public function test_mcp_endpoint_requires_token(): void
     {
         $this->postJson('/mcp/mail', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list'])
+            ->assertUnauthorized()
+            ->assertHeader('WWW-Authenticate');
+    }
+
+    public function test_mcp_endpoint_returns_401_even_without_json_accept_header(): void
+    {
+        $this->post('/mcp/mail', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list'])
             ->assertUnauthorized();
     }
 }
