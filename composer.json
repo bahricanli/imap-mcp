@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "bahricanli/imap-mcp",
     "type": "project",
-    "description": "Laravel ile yazılmış, OAuth 2.1 korumalı, salt-okunur IMAP MCP sunucusu.",
+    "description": "Laravel ile yazılmış, OAuth 2.1 korumalı IMAP MCP sunucusu (okuma, taşıma, klasör yönetimi).",
     "keywords": [
         "mcp",
         "imap",

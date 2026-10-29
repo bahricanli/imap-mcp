@@ -10,7 +10,7 @@
     @else
         <ul>
             @foreach ($accounts as $account)
-                <li><code>{{ $account->label }}</code> · {{ $account->username }} @if ($account->is_default) (varsayılan) @endif</li>
+                <li><code>{{ $account->label }}</code> · {{ $account->username }} @if ($account->is_default) (varsayılan) @endif · {{ $account->allow_write ? 'okuma + yazma' : 'salt okuma' }}</li>
             @endforeach
         </ul>
     @endif

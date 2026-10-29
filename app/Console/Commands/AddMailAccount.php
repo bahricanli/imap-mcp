@@ -34,6 +34,7 @@ class AddMailAccount extends Command
             'port'          => (int) text('Port', default: '993'),
             'encryption'    => select('Şifreleme', ['ssl', 'tls', 'starttls', 'none'], default: 'ssl'),
             'validate_cert' => confirm('Sertifika doğrulansın mı?', default: true),
+            'allow_write'   => confirm('Yapay zeka bu hesapta klasör oluşturma, taşıma ve silme yapabilsin mi?', default: false),
             'username'      => text('Kullanıcı adı', required: true),
             'password'      => password('Şifre / uygulama şifresi', required: true),
             'is_default'    => ! MailAccount::where('user_id', $user->id)->exists(),

@@ -5,23 +5,49 @@ namespace App\Services;
 use App\Models\MailAccount;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
+use Webklex\PHPIMAP\Folder;
+use Webklex\PHPIMAP\IMAP;
 use Webklex\PHPIMAP\Message;
 
 /**
- * Salt-okunur IMAP katmanı. Hiçbir metot mesaj silmez, taşımaz ya da
- * \Seen bayrağını değiştirmez (FT_PEEK + leaveUnread).
+ * IMAP katmanı.
+ *
+ * Okuma metotları mesajları okundu işaretlemez (FT_PEEK + leaveUnread).
+ * Yazma metotları yalnızca allow_write açık hesaplarda çağrılır (writableAccount),
+ * her işlem loglanır ve aşağıdaki güvenlik kuralları uygulanır:
+ *  - Silme varsayılan olarak Çöp'e taşır; kalıcı silme sadece Çöp klasöründen yapılır.
+ *  - Sistem klasörleri (INBOX, Sent, Drafts, Trash, Junk…) ve dolu/alt klasörlü klasörler silinmez.
+ *  - Tek çağrıda en fazla MAX_BATCH mesaj.
+ *
+ * Klasör yolları dışarıya her zaman UTF-8 (çözülmüş) verilir ve UTF-8 alınır;
+ * sunucuya giden ham yol (UTF7-IMAP) Folder::$path ile kullanılır.
  */
 class ImapService
 {
-    private const BODY_LIMIT = 20_000; // karakter; modele dev HTML yığını gitmesin
+    public const MAX_BATCH = 50;
+
+    private const BODY_LIMIT = 20_000;
+
+    /** Silinmesine izin verilmeyen klasörlerin (son segment, küçük harf) adları. */
+    private const PROTECTED_NAMES = [
+        'inbox', 'sent', 'sent items', 'sent messages', 'gönderilmiş', 'gönderilenler', 'gönderilmiş öğeler',
+        'drafts', 'taslaklar', 'trash', 'deleted', 'deleted items', 'deleted messages', 'çöp', 'çöp kutusu',
+        'silinmiş öğeler', 'junk', 'spam', 'junk e-mail', 'istenmeyen', 'gereksiz', 'archive', 'arşiv',
+        'all mail', 'tüm postalar', 'starred', 'important',
+    ];
+
+    /** Çöp klasörünü otomatik bulmak için denenecek adlar (öncelik sırasıyla). */
+    private const TRASH_NAMES = ['trash', 'deleted items', 'deleted messages', 'deleted', 'çöp', 'çöp kutusu', 'silinmiş öğeler', 'bin'];
 
     public function __construct(private ClientManager $manager) {}
 
-    /** Kullanıcının hesabını label ile (yoksa varsayılanı) bulur. */
+    // ---------------------------------------------------------------- hesaplar
+
     public function account(User $user, ?string $label = null): MailAccount
     {
         $query = MailAccount::where('user_id', $user->id);
@@ -34,6 +60,20 @@ class ImapService
             throw new RuntimeException($label
                 ? "'{$label}' adında bir posta hesabın yok. list-accounts ile hesapları gör."
                 : 'Tanımlı posta hesabın yok.');
+        }
+
+        return $account;
+    }
+
+    public function writableAccount(User $user, ?string $label = null): MailAccount
+    {
+        $account = $this->account($user, $label);
+
+        if (! $account->allow_write) {
+            throw new RuntimeException(
+                "'{$account->label}' hesabında yazma izni kapalı. Sunucuda "
+                ."`php artisan mail:set-write {$user->email} {$account->label} on` ile açılabilir."
+            );
         }
 
         return $account;
@@ -57,17 +97,19 @@ class ImapService
         return $client;
     }
 
+    // ---------------------------------------------------------------- okuma
+
     /** @return array<int, array{path:string,name:string,messages:?int,unseen:?int}> */
     public function folders(Client $client): array
     {
         $out = [];
 
         foreach ($client->getFolders(false) as $folder) {
-            // IMAP STATUS: klasörü seçmeden sayıları verir (examine'deki 'unseen' sayı değil).
-            $status = rescue(fn () => $folder->status(), [], report: false);
+            // IMAP STATUS: klasörü seçmeden sayıları verir.
+            $status = $folder->no_select ? [] : rescue(fn () => $folder->status(), [], report: false);
 
             $out[] = [
-                'path'     => $folder->path,
+                'path'     => $folder->full_name, // UTF-8; diğer araçlara bu verilir
                 'name'     => $folder->name,
                 'messages' => $status['messages'] ?? null,
                 'unseen'   => $status['unseen'] ?? null,
@@ -83,8 +125,7 @@ class ImapService
      */
     public function search(Client $client, array $criteria): array
     {
-        $folder = $client->getFolderByPath($criteria['folder'] ?? 'INBOX')
-            ?? throw new RuntimeException("Klasör bulunamadı: ".($criteria['folder'] ?? 'INBOX'));
+        $folder = $this->folder($client, $criteria['folder'] ?? 'INBOX');
 
         $query = $folder->query()
             ->leaveUnread()
@@ -121,17 +162,14 @@ class ImapService
             $query->since(now()->subDays(7));
         }
 
-        $messages = $query->limit(min((int) ($criteria['limit'] ?? 20), 50))->get();
+        $messages = $query->limit(min((int) ($criteria['limit'] ?? 20), self::MAX_BATCH))->get();
 
         return $messages->map(fn (Message $m) => $this->summary($m))->values()->all();
     }
 
     public function message(Client $client, string $folderPath, int $uid): array
     {
-        $folder = $client->getFolderByPath($folderPath)
-            ?? throw new RuntimeException("Klasör bulunamadı: {$folderPath}");
-
-        $message = $folder->query()->leaveUnread()->getMessageByUid($uid);
+        $message = $this->folder($client, $folderPath)->query()->leaveUnread()->getMessageByUid($uid);
 
         $body = $message->hasTextBody()
             ? $message->getTextBody()
@@ -148,6 +186,219 @@ class ImapService
                 'size' => $a->getSize(),
             ])->values()->all(),
         ];
+    }
+
+    // ---------------------------------------------------------------- yazma
+
+    public function createFolder(Client $client, MailAccount $account, string $path): string
+    {
+        $path = trim($path);
+
+        if ($path === '' || mb_strlen($path) > 200) {
+            throw new RuntimeException('Klasör adı boş olamaz ve 200 karakteri geçemez.');
+        }
+
+        if ($client->getFolderByPath($path, soft_fail: true)) {
+            throw new RuntimeException("'{$path}' klasörü zaten var.");
+        }
+
+        $folder = $client->createFolder($path, expunge: false);
+        $this->audit($account, 'create-folder', ['folder' => $path]);
+
+        return $folder?->full_name ?? $path;
+    }
+
+    public function deleteFolder(Client $client, MailAccount $account, string $path): void
+    {
+        $folder = $this->folder($client, $path);
+
+        if ($this->isProtectedFolder($folder->full_name) || $this->sameFolder($folder, $this->trashFolder($client, $account, required: false))) {
+            throw new RuntimeException("'{$folder->full_name}' bir sistem klasörü; silinemez.");
+        }
+
+        if ($folder->has_children || $folder->hasChildren()) {
+            throw new RuntimeException("'{$folder->full_name}' alt klasörler içeriyor; önce onları sil.");
+        }
+
+        $count = (int) ($folder->status()['messages'] ?? 0);
+        if ($count > 0) {
+            throw new RuntimeException("'{$folder->full_name}' içinde {$count} mesaj var. Sadece boş klasörler silinir; önce mesajları taşı veya sil.");
+        }
+
+        $folder->delete(expunge: false);
+        $this->audit($account, 'delete-folder', ['folder' => $folder->full_name]);
+    }
+
+    /** @param int[] $uids */
+    public function moveMessages(Client $client, MailAccount $account, string $fromPath, array $uids, string $toPath): int
+    {
+        $uids = $this->normalizeUids($uids);
+        $from = $this->folder($client, $fromPath);
+        $to = $this->folder($client, $toPath);
+
+        if ($this->sameFolder($from, $to)) {
+            throw new RuntimeException('Kaynak ve hedef klasör aynı.');
+        }
+
+        $client->openFolder($from->path, force_select: true);
+        $client->getConnection()->moveManyMessages($uids, $to->path, IMAP::ST_UID)->validatedData();
+
+        $this->audit($account, 'move', ['from' => $from->full_name, 'to' => $to->full_name, 'uids' => $uids]);
+
+        return count($uids);
+    }
+
+    /**
+     * Varsayılan: Çöp'e taşır. permanent=true: sadece Çöp klasöründeki mesajları kalıcı siler.
+     *
+     * @param int[] $uids
+     * @return array{action:string,count:int,trash?:string}
+     */
+    public function deleteMessages(Client $client, MailAccount $account, string $fromPath, array $uids, bool $permanent = false): array
+    {
+        $uids = $this->normalizeUids($uids);
+        $from = $this->folder($client, $fromPath);
+        $trash = $this->trashFolder($client, $account, required: true);
+
+        if (! $permanent) {
+            if ($this->sameFolder($from, $trash)) {
+                throw new RuntimeException('Mesajlar zaten Çöp klasöründe. Kalıcı silmek için permanent=true kullan.');
+            }
+
+            $this->moveMessages($client, $account, $from->full_name, $uids, $trash->full_name);
+
+            return ['action' => 'moved_to_trash', 'count' => count($uids), 'trash' => $trash->full_name];
+        }
+
+        if (! $this->sameFolder($from, $trash)) {
+            throw new RuntimeException(
+                "Kalıcı silme sadece Çöp klasöründen ({$trash->full_name}) yapılabilir. Önce permanent=false ile Çöp'e taşı."
+            );
+        }
+
+        $client->openFolder($from->path, force_select: true);
+        $connection = $client->getConnection();
+        foreach ($uids as $uid) {
+            $connection->store(['\Deleted'], $uid, $uid, '+', true, IMAP::ST_UID)->validatedData();
+        }
+        $connection->expunge()->validatedData();
+
+        $this->audit($account, 'delete-permanent', ['folder' => $from->full_name, 'uids' => $uids]);
+
+        return ['action' => 'deleted_permanently', 'count' => count($uids)];
+    }
+
+    /** @param int[] $uids */
+    public function flagMessages(Client $client, MailAccount $account, string $path, array $uids, ?bool $seen, ?bool $flagged): int
+    {
+        $uids = $this->normalizeUids($uids);
+        $folder = $this->folder($client, $path);
+
+        $client->openFolder($folder->path, force_select: true);
+        $connection = $client->getConnection();
+
+        foreach ($uids as $uid) {
+            if ($seen !== null) {
+                $connection->store(['\Seen'], $uid, $uid, $seen ? '+' : '-', true, IMAP::ST_UID)->validatedData();
+            }
+            if ($flagged !== null) {
+                $connection->store(['\Flagged'], $uid, $uid, $flagged ? '+' : '-', true, IMAP::ST_UID)->validatedData();
+            }
+        }
+
+        $this->audit($account, 'flag', ['folder' => $folder->full_name, 'uids' => $uids, 'seen' => $seen, 'flagged' => $flagged]);
+
+        return count($uids);
+    }
+
+    // ---------------------------------------------------------------- yardımcılar
+
+    public function folder(Client $client, string $path): Folder
+    {
+        return $client->getFolderByPath($path, soft_fail: true)
+            ?? throw new RuntimeException("Klasör bulunamadı: {$path}. list-folders ile mevcut klasörleri gör.");
+    }
+
+    public function trashFolder(Client $client, MailAccount $account, bool $required = true): ?Folder
+    {
+        if ($account->trash_folder) {
+            return $required ? $this->folder($client, $account->trash_folder) : $client->getFolderByPath($account->trash_folder, soft_fail: true);
+        }
+
+        $name = $this->detectTrashName(
+            $client->getFolders(false)->map(fn (Folder $f) => $f->full_name)->all()
+        );
+
+        if ($name !== null) {
+            return $client->getFolderByPath($name, soft_fail: true);
+        }
+
+        if ($required) {
+            throw new RuntimeException(
+                "Çöp klasörü bulunamadı. `php artisan mail:set-write <email> {$account->label} on --trash=\"Klasör/Yolu\"` ile belirt."
+            );
+        }
+
+        return null;
+    }
+
+    /** @param string[] $paths */
+    public function detectTrashName(array $paths): ?string
+    {
+        $byLeaf = [];
+        foreach ($paths as $path) {
+            $byLeaf[$this->leaf($path)] ??= $path;
+        }
+
+        foreach (self::TRASH_NAMES as $candidate) {
+            if (isset($byLeaf[$candidate])) {
+                return $byLeaf[$candidate];
+            }
+        }
+
+        return null;
+    }
+
+    public function isProtectedFolder(string $path): bool
+    {
+        return in_array($this->leaf($path), self::PROTECTED_NAMES, true);
+    }
+
+    /** @param array<int, int|string> $uids @return int[] */
+    public function normalizeUids(array $uids): array
+    {
+        $uids = array_values(array_unique(array_map('intval', $uids)));
+        $uids = array_values(array_filter($uids, fn ($u) => $u > 0));
+
+        if ($uids === []) {
+            throw new RuntimeException('En az bir geçerli uid gerekli.');
+        }
+
+        if (count($uids) > self::MAX_BATCH) {
+            throw new RuntimeException('Tek seferde en fazla '.self::MAX_BATCH.' mesaj işlenebilir.');
+        }
+
+        return $uids;
+    }
+
+    private function leaf(string $path): string
+    {
+        $parts = preg_split('~[/.]~', $path);
+
+        return mb_strtolower(trim((string) end($parts)));
+    }
+
+    private function sameFolder(?Folder $a, ?Folder $b): bool
+    {
+        return $a !== null && $b !== null && $a->path === $b->path;
+    }
+
+    private function audit(MailAccount $account, string $action, array $context): void
+    {
+        Log::info("mail-mcp: {$action}", [
+            'user_id' => $account->user_id,
+            'account' => $account->label,
+        ] + $context);
     }
 
     private function summary(Message $m): array

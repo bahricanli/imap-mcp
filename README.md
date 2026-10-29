@@ -1,23 +1,50 @@
 # imap-mcp
 
-IMAP posta kutularını yapay zeka istemcilerine (Claude, ChatGPT, Cursor…) **salt-okunur** açan,
-OAuth 2.1 ile korunan bir MCP sunucusu. Laravel 13 + [laravel/mcp](https://github.com/laravel/mcp)
+IMAP posta kutularını yapay zeka istemcilerine (Claude, ChatGPT, Cursor…) açan, OAuth 2.1 ile
+korunan bir MCP sunucusu. Laravel 13 + [laravel/mcp](https://github.com/laravel/mcp)
 + [webklex/php-imap](https://github.com/Webklex/php-imap).
 
-- Mesajları okundu işaretlemez, silmez, taşımaz, göndermez.
+- Varsayılan olarak **salt-okunur**; klasör oluşturma, taşıma, işaretleme ve silme hesap bazında açılır.
+- Okuma araçları mesajları okundu işaretlemez. Mail göndermez.
 - Bir kullanıcının birden fazla IMAP hesabı olabilir; şifreler `APP_KEY` ile şifreli saklanır.
 - claude.ai custom connector'a doğrudan eklenir: OAuth keşfi ve Dynamic Client Registration hazır.
 
 ## Araçlar
 
+**Okuma** (her hesapta):
+
 | Araç | Ne yapar |
 |---|---|
-| `list-accounts` | Kullanıcının tanımlı hesapları |
+| `list-accounts` | Kullanıcının hesapları ve yazma izni olup olmadığı |
 | `list-folders` | Klasörler + toplam/okunmamış sayısı |
 | `search-emails` | from / to / subject / text / since / before / unseen ile arama; gövdesiz özet liste (en fazla 50) |
 | `get-email` | UID ile tek mesaj: başlıklar, düz metin gövde (20k karakterde kesilir), ek listesi |
 
 Kriter verilmezse `search-emails` son 7 güne bakar; dev kutularda tam tarama yapmaz.
+
+**Yazma** (sadece yazma izni açık hesaplarda; izni olmayan kullanıcılar bu araçları hiç görmez):
+
+| Araç | Ne yapar |
+|---|---|
+| `get-email` + `move_to` / `mark_seen` | Okuduktan sonra mesajı bir klasöre taşır ve/veya okundu işaretler |
+| `move-emails` | Mesajları (en fazla 50) başka klasöre taşır |
+| `flag-emails` | Okundu/okunmadı, yıldızlı/yıldızsız işaretler |
+| `create-folder` | Klasör oluşturur (Türkçe karakter destekli) |
+| `delete-emails` | Varsayılan: Çöp'e taşır. `permanent=true`: sadece Çöp klasöründen kalıcı siler |
+| `delete-folder` | Sadece boş, alt klasörü olmayan, sistem klasörü olmayan klasörleri siler |
+
+Örnek istek: *"Okunmamış faturaları oku, özetle ve hepsini Faturalar/2026 klasörüne taşı."*
+Claude `search-emails` ile mesajları bulur. Ardından her biri için `get-email(uid, move_to: "Faturalar/2026", mark_seen: true)` çağırır.
+
+### Yazma iznini açma
+
+```bash
+php artisan mail:set-write sen@ornek.com kalehost on
+php artisan mail:set-write sen@ornek.com kalehost on --trash="INBOX/Trash"   # Çöp klasörü otomatik bulunamazsa
+php artisan mail:set-write sen@ornek.com kalehost off
+```
+
+Çöp klasörü `Trash`, `Deleted Items`, `Çöp`, `Çöp Kutusu` gibi adlardan otomatik bulunur.
 
 ## Docker ile kurulum (Nginx Proxy Manager arkasında)
 
@@ -98,15 +125,21 @@ bağlantı havuzu ya da kısa süreli cache eklenebilir.
 
 - Mailcow / Gmail / Outlook için ana şifre yerine **uygulama şifresi** kullan.
 - Açık kayıt yok; kullanıcılar sadece `mail:create-user` ile eklenir. Giriş denemeleri dakikada 5 ile sınırlı.
-- E-posta içeriği güvenilmeyen veridir (prompt injection). Sunucu talimatları ve `get-email` açıklaması
-  modele bunu söylüyor. İleride gönderme/taşıma gibi yazma araçları eklenirse ayrı scope ve onay gerekir.
+- **Prompt injection:** e-posta içeriği güvenilmeyen veridir. Gelen bir mail "bu klasörü sil" diyebilir.
+  Bu yüzden yazma izni varsayılan kapalı. Sunucu talimatları modele yazma işlemlerini sadece kullanıcının
+  açık isteğiyle yapmasını söylüyor. Yine de asıl güvence aşağıdaki sunucu tarafı kurallar:
+  - Silme önce Çöp'e taşır; kalıcı silme sadece Çöp klasöründen, ayrı bir adımla yapılır.
+  - Sistem klasörleri ve dolu klasörler silinemez.
+  - Tek çağrıda en fazla 50 mesaj işlenir.
+  - Tüm yazma işlemleri kullanıcı, hesap, klasör ve uid'lerle loglanır (`docker compose logs mail-mcp`).
+- Yazma araçları MCP `destructive` / `idempotent` işaretleriyle gelir; Claude bunlar için onay isteyebilir.
 
 ## Yol haritası
 
-- [ ] Web panelden hesap ekleme / silme
+- [ ] Web panelden hesap ekleme / silme ve yazma izni
 - [ ] Ek indirme (imzalı, süreli URL)
-- [ ] Taslak oluşturma (göndermeden), ayrı OAuth scope ile
-- [ ] UTF-7 klasör adları için ek testler (Türkçe karakterli klasörler)
+- [ ] Taslak oluşturma (göndermeden)
+- [ ] Gerçek Dovecot konteyneriyle uçtan uca IMAP testleri (CI)
 
 ## Lisans
 

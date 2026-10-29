@@ -31,7 +31,8 @@ test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/login")" 
 meta=$(curl -fsS -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Host: mail-mcp.example.com' \
   "http://localhost:$PORT/.well-known/oauth-authorization-server")
 echo "$meta"
-grep -q '"authorization_endpoint":"https://mail-mcp.example.com/oauth/authorize"' <<<"$meta"
+test "$(jq -r .authorization_endpoint <<<"$meta")" = "https://mail-mcp.example.com/oauth/authorize"
+test "$(jq -r .registration_endpoint <<<"$meta")" = "https://mail-mcp.example.com/oauth/register"
 
 code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' "http://localhost:$PORT/mcp/mail")

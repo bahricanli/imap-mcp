@@ -9,7 +9,7 @@ class MailAccount extends Model
 {
     protected $fillable = [
         'user_id', 'label', 'host', 'port', 'encryption',
-        'validate_cert', 'username', 'password', 'is_default',
+        'validate_cert', 'allow_write', 'trash_folder', 'username', 'password', 'is_default',
     ];
 
     protected $hidden = ['password'];
@@ -19,6 +19,7 @@ class MailAccount extends Model
         return [
             'password'      => 'encrypted',   // APP_KEY ile şifreli saklanır
             'validate_cert' => 'boolean',
+            'allow_write'   => 'boolean',
             'is_default'    => 'boolean',
             'port'          => 'integer',
         ];

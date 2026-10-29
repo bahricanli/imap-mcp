@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\Tools\Concerns\UsesImap;
 use App\Services\ImapService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -10,12 +11,13 @@ use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
-use Throwable;
 
 #[IsReadOnly]
 #[Description('Bir klasörde e-posta arar ve en yeniden eskiye özet listesi (uid, tarih, gönderen, konu, okundu mu) döner. Gövde dönmez; içerik için get-email kullan. Hiç kriter verilmezse son 7 gün listelenir.')]
 class SearchEmailsTool extends Tool
 {
+    use UsesImap;
+
     public function handle(Request $request, ImapService $imap): Response|ResponseFactory
     {
         $criteria = $request->validate([
@@ -34,21 +36,15 @@ class SearchEmailsTool extends Tool
             'before.date' => 'before bir tarih olmalı, örn. 2026-10-28.',
         ]);
 
-        try {
-            $account = $imap->account($request->user(), $criteria['account'] ?? null);
-            $client = $imap->connect($account);
+        return $this->withImap($request, $imap, $criteria['account'] ?? null, false, function ($client) use ($imap, $criteria) {
             $messages = $imap->search($client, $criteria);
-            $client->disconnect();
-        } catch (Throwable $e) {
-            return Response::error('IMAP hatası: '.$e->getMessage());
-        }
 
-        return Response::structured([
-            'account'  => $account->label,
-            'folder'   => $criteria['folder'] ?? 'INBOX',
-            'count'    => count($messages),
-            'messages' => $messages,
-        ]);
+            return [
+                'folder'   => $criteria['folder'] ?? 'INBOX',
+                'count'    => count($messages),
+                'messages' => $messages,
+            ];
+        });
     }
 
     public function schema(JsonSchema $schema): array
