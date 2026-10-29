@@ -36,7 +36,18 @@ Kriter verilmezse `search-emails` son 7 güne bakar; dev kutularda tam tarama ya
 Örnek istek: *"Okunmamış faturaları oku, özetle ve hepsini Faturalar/2026 klasörüne taşı."*
 Claude `search-emails` ile mesajları bulur. Ardından her biri için `get-email(uid, move_to: "Faturalar/2026", mark_seen: true)` çağırır.
 
-### Yazma iznini açma
+### Web arayüzü
+
+`https://alanadin/` adresinde giriş yaptıktan sonra:
+
+- **Posta hesapları:** ekle / düzenle / sil, "Bağlantıyı test et", yazma izni ve Çöp klasörü ayarı.
+  Hesap kaydedilmeden önce IMAP bağlantısı test edilir; düzenlemede şifre boş bırakılırsa mevcut şifre korunur.
+- **Bağlı uygulamalar:** OAuth ile bağlanan istemciler (Claude vb.) ve "Bağlantıyı kes" (access + refresh token'lar iptal edilir).
+- **Şifre:** giriş şifresini değiştirme.
+
+İlk kullanıcı yine terminalden oluşturulur (`mail:create-user`); gerisi arayüzden yapılabilir.
+
+### Yazma iznini terminalden açma
 
 ```bash
 php artisan mail:set-write sen@ornek.com kalehost on
