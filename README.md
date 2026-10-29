@@ -44,8 +44,10 @@ Claude `search-emails` ile mesajları bulur. Ardından her biri için `get-email
   Hesap kaydedilmeden önce IMAP bağlantısı test edilir; düzenlemede şifre boş bırakılırsa mevcut şifre korunur.
 - **Bağlı uygulamalar:** OAuth ile bağlanan istemciler (Claude vb.) ve "Bağlantıyı kes" (access + refresh token'lar iptal edilir).
 - **Şifre:** giriş şifresini değiştirme.
+- **Kullanıcılar** (sadece yöneticiler): kullanıcı ekleme (şifre otomatik üretilir, bir kez gösterilir),
+  şifre sıfırlama, yönetici yapma/kaldırma, silme. Yönetici başka kullanıcıların IMAP bilgilerini görmez.
 
-İlk kullanıcı yine terminalden oluşturulur (`mail:create-user`); gerisi arayüzden yapılabilir.
+İlk kullanıcı terminalden oluşturulur (`mail:create-user`) ve otomatik yönetici olur; gerisi arayüzden yapılabilir.
 
 ### Yazma iznini terminalden açma
 

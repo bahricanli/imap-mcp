@@ -14,12 +14,14 @@ use function Laravel\Prompts\text;
  */
 class CreateUser extends Command
 {
-    protected $signature = 'mail:create-user';
+    protected $signature = 'mail:create-user {--admin : Kullanıcıyı yönetici yap (ilk kullanıcı her zaman yöneticidir)}';
 
     protected $description = 'MCP sunucusuna giriş yapabilecek bir kullanıcı oluşturur';
 
     public function handle(): int
     {
+        $isFirst = ! User::exists();
+
         $user = User::create([
             'name'     => text('Ad', required: true),
             'email'    => text('E-posta', required: true, validate: fn ($v) => match (true) {
@@ -30,7 +32,11 @@ class CreateUser extends Command
             'password' => password('Şifre', required: true, validate: fn ($v) => strlen($v) < 12 ? 'En az 12 karakter.' : null),
         ]);
 
-        $this->info("Kullanıcı oluşturuldu: {$user->email}");
+        if ($isFirst || $this->option('admin')) {
+            $user->forceFill(['is_admin' => true])->save();
+        }
+
+        $this->info("Kullanıcı oluşturuldu: {$user->email}".($user->is_admin ? ' (yönetici)' : ''));
 
         return self::SUCCESS;
     }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ConnectionController;
 use App\Http\Controllers\MailAccountController;
 use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Kök adres (/) MCP sunucusuna ayrılmış (routes/ai.php).
@@ -30,6 +31,12 @@ Route::prefix('panel')->group(function () {
 
         Route::get('password', [PasswordController::class, 'edit'])->name('password.edit');
         Route::put('password', [PasswordController::class, 'update'])->middleware('throttle:5,1')->name('password.update');
+
+        Route::middleware('can:admin')->group(function () {
+            Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'destroy']);
+            Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+            Route::post('users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+        });
     });
 });
 

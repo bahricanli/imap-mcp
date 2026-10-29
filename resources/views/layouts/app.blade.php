@@ -67,6 +67,9 @@
                 <a href="{{ route('accounts.index') }}" class="{{ request()->routeIs('accounts.*') ? 'active' : '' }}">Posta hesapları</a>
                 <a href="{{ route('connections.index') }}" class="{{ request()->routeIs('connections.*') ? 'active' : '' }}">Bağlı uygulamalar</a>
                 <a href="{{ route('password.edit') }}" class="{{ request()->routeIs('password.*') ? 'active' : '' }}">Şifre</a>
+                @can('admin')
+                    <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">Kullanıcılar</a>
+                @endcan
                 <form method="POST" action="{{ route('logout') }}" style="margin:0">
                     @csrf
                     <button type="submit" class="link" style="font-size:14px">Çıkış</button>
