@@ -19,24 +19,48 @@ OAuth 2.1 ile korunan bir MCP sunucusu. Laravel 13 + [laravel/mcp](https://githu
 
 Kriter verilmezse `search-emails` son 7 güne bakar; dev kutularda tam tarama yapmaz.
 
-## Docker ile kurulum
+## Docker ile kurulum (Nginx Proxy Manager arkasında)
+
+Hazır imaj: `ghcr.io/bahricanli/imap-mcp` (amd64 + arm64). Her `main` push'unda build edilir,
+konteyner açılıp OAuth uçları test edildikten sonra yayınlanır.
 
 ```bash
-git clone https://github.com/bahricanli/imap-mcp.git && cd imap-mcp
-cp .env.example .env
-# APP_URL'i gerçek HTTPS adresine çevir, sonra:
-docker compose run --rm mail-mcp php artisan key:generate --show   # çıktıyı .env'de APP_KEY'e yaz
-docker compose up -d --build
+mkdir imap-mcp && cd imap-mcp
+curl -O https://raw.githubusercontent.com/bahricanli/imap-mcp/main/docker-compose.yml
+curl -o .env https://raw.githubusercontent.com/bahricanli/imap-mcp/main/.env.example
 
+# .env içinde:
+#   APP_URL=https://mail-mcp.ornek.com          (NPM'deki alan adı)
+#   APP_KEY=   ← aşağıdaki komutun çıktısı
+#   NPM_NETWORK=npm_default                      (NPM'in Docker ağı)
+echo "base64:$(openssl rand -base64 32)"
+
+docker compose up -d
 docker compose exec mail-mcp php artisan mail:create-user
 docker compose exec mail-mcp php artisan mail:add-account sen@ornek.com
 ```
 
+NPM'in ağ adını bulmak için:
+`docker inspect <npm-konteyneri> -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'`
+
+**NPM'de Proxy Host:**
+
+| Alan | Değer |
+|---|---|
+| Domain Names | `mail-mcp.ornek.com` (APP_URL ile aynı) |
+| Scheme / Forward Hostname / Port | `http` / `mail-mcp` / `8080` |
+| SSL | Let's Encrypt, **Force SSL**, HTTP/2 |
+
+Ek ayar gerekmez: uygulama NPM'in gönderdiği `X-Forwarded-Proto` / `X-Forwarded-Host` başlıklarına
+güvenir, OAuth keşif adresleri `https://` ile üretilir. Konteyner portu dışarı açılmaz.
+
 İlk açılışta SQLite veritabanı ve Passport anahtarları `storage` volume'unda oluşturulur,
-migration'lar otomatik çalışır. Konteyner 8080'i dinler; önüne TLS sonlandıran bir reverse proxy
-(Traefik, nginx, Caddy) koy. OAuth akışı HTTPS olmadan çalışmaz.
+migration'lar otomatik çalışır.
 
 > `APP_KEY`'i yedekle. Kaybedersen kayıtlı IMAP şifreleri çözülemez.
+
+Kontrol: `curl https://mail-mcp.ornek.com/.well-known/oauth-authorization-server` çıktısındaki
+tüm adresler `https://mail-mcp.ornek.com/...` ile başlamalı.
 
 ## Docker'sız kurulum
 

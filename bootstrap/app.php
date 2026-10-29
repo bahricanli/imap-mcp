@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Nginx Proxy Manager / Traefik arkasında: X-Forwarded-Proto/Host başlıklarına güven,
+        // böylece OAuth keşif adresleri https:// ve doğru alan adıyla üretilir.
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

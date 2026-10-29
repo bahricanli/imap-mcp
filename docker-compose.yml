@@ -1,17 +1,35 @@
+# Nginx Proxy Manager arkasında çalışır. Port dışarı açılmaz; NPM konteynere
+# Docker ağı üzerinden "mail-mcp:8080" adıyla ulaşır.
+#
+# NPM'de Proxy Host:
+#   Domain:       mail-mcp.ornek.com   (.env'deki APP_URL ile aynı)
+#   Scheme:       http
+#   Forward host: mail-mcp      Forward port: 8080
+#   SSL:          Let's Encrypt + Force SSL + HTTP/2
 services:
   mail-mcp:
-    build: .
     image: ghcr.io/bahricanli/imap-mcp:latest
+    # Kaynaktan build etmek istersen üstteki satırı kapatıp bunu aç:
+    # build: .
+    container_name: mail-mcp
     restart: unless-stopped
-    ports:
-      - "8080:8080"           # önüne Traefik/nginx + TLS koy; OAuth için HTTPS şart
     env_file: .env
     environment:
       DB_CONNECTION: sqlite
       DB_DATABASE: /var/www/html/storage/database.sqlite
       LOG_CHANNEL: stderr
+      SESSION_SECURE_COOKIE: "true"
     volumes:
-      - storage:/var/www/html/storage   # SQLite + Passport anahtarları + loglar
+      - storage:/var/www/html/storage   # SQLite + Passport anahtarları
+    networks:
+      - proxy
 
 volumes:
   storage:
+
+networks:
+  proxy:
+    external: true
+    # NPM'in bağlı olduğu ağın adı. Bulmak için:
+    #   docker inspect <npm-konteyneri> -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+    name: ${NPM_NETWORK:-npm_default}
