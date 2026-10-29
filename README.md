@@ -33,6 +33,7 @@ curl -o .env https://raw.githubusercontent.com/bahricanli/imap-mcp/main/.env.exa
 #   APP_URL=https://mail-mcp.ornek.com          (NPM'deki alan adı)
 #   APP_KEY=   ← aşağıdaki komutun çıktısı
 #   NPM_NETWORK=npm_default                      (NPM'in Docker ağı)
+#   APP_PORT=8080                                (konteynerin dinlediği port)
 echo "base64:$(openssl rand -base64 32)"
 
 docker compose up -d
@@ -48,7 +49,7 @@ NPM'in ağ adını bulmak için:
 | Alan | Değer |
 |---|---|
 | Domain Names | `mail-mcp.ornek.com` (APP_URL ile aynı) |
-| Scheme / Forward Hostname / Port | `http` / `mail-mcp` / `8080` |
+| Scheme / Forward Hostname / Port | `http` / `mail-mcp` / `.env`'deki `APP_PORT` (varsayılan 8080) |
 | SSL | Let's Encrypt, **Force SSL**, HTTP/2 |
 
 Ek ayar gerekmez: uygulama NPM'in gönderdiği `X-Forwarded-Proto` / `X-Forwarded-Host` başlıklarına

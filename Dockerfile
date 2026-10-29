@@ -13,4 +13,5 @@ COPY --chown=www-data:www-data . /var/www/html
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
+# Port .env içindeki APP_PORT ile değişir (compose bunu NGINX_HTTP_PORT olarak verir).
 EXPOSE 8080
