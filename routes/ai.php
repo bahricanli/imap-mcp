@@ -14,14 +14,14 @@ Mcp::web('/', MailServer::class)
     ->middleware(['auth:api', 'throttle:60,1']);
 
 // Mcp::web GET / için 405 kaydeder (SSE dinleme desteklenmiyor). Bunu ezip:
-// MCP istemcisi SSE isterse yine 405, tarayıcıdan gelen ziyaretçiyi panele yönlendir.
+// MCP istemcisi SSE isterse yine 405, tarayıcıdan gelen ziyaretçiye tanıtım sayfasını göster.
 Route::get('/', function (Request $request) {
     if (str_contains((string) $request->header('Accept'), 'text/event-stream')) {
         return response('', 405)->header('Allow', 'POST');
     }
 
-    return redirect('/panel');
-});
+    return view('home');
+})->middleware('web')->name('home');
 
 // Claude Code / API için sabit token istersen Passport yerine:
 // Mcp::web('/', MailServer::class)->middleware('auth:sanctum');
