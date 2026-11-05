@@ -28,9 +28,11 @@ docker logs mail-mcp-smoke 2>&1 | tail -30
 curl -fsS "http://localhost:$PORT/up" >/dev/null
 FWD=(-H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Host: mail-mcp.example.com')
 
-# Web arayüzü /panel altında; tarayıcıyla kök adrese gelen panele yönlenir.
+# Web arayüzü /panel altında; tarayıcıyla kök adrese gelen tanıtım sayfasını görür
+# ve sayfadaki MCP adresi proxy başlıklarından https ile üretilir.
 test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/login")" = 200
-test "$(curl -s -o /dev/null -w '%{redirect_url}' "${FWD[@]}" -H 'Accept: text/html' "http://localhost:$PORT/")" = "https://mail-mcp.example.com/panel"
+HOME_HTML="$(curl -fsS "${FWD[@]}" -H 'Accept: text/html' "http://localhost:$PORT/")"
+[[ "$HOME_HTML" == *'https://mail-mcp.example.com/'* ]]
 # MCP istemcisinin SSE GET'i desteklenmiyor: 405 + Allow: POST
 test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: text/event-stream' "http://localhost:$PORT/")" = 405
 
