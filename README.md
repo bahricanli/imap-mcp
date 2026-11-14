@@ -1,159 +1,120 @@
+🇬🇧 English | [🇹🇷 Türkçe](README.tr.md)
+
 # imap-mcp
 
-IMAP posta kutularını yapay zeka istemcilerine (Claude, ChatGPT, Cursor…) açan, OAuth 2.1 ile
-korunan bir MCP sunucusu. Laravel 13 + [laravel/mcp](https://github.com/laravel/mcp)
-+ [webklex/php-imap](https://github.com/Webklex/php-imap).
+An MCP server that exposes IMAP mailboxes to AI clients (Claude, ChatGPT, Cursor…), protected
+with OAuth 2.1. Built with Laravel 13, [laravel/mcp](https://github.com/laravel/mcp) and
+[webklex/php-imap](https://github.com/Webklex/php-imap).
 
-- Varsayılan olarak **salt-okunur**; klasör oluşturma, taşıma, işaretleme ve silme hesap bazında açılır.
-- Okuma araçları mesajları okundu işaretlemez. Mail göndermez.
-- Bir kullanıcının birden fazla IMAP hesabı olabilir; şifreler `APP_KEY` ile şifreli saklanır.
-- claude.ai custom connector'a doğrudan eklenir: OAuth keşfi ve Dynamic Client Registration hazır.
+![Mail accounts screen](docs/images/screenshots/tr-accounts.png)
 
-## Araçlar
+More: [Feature guide](docs/features.md)
 
-**Okuma** (her hesapta):
+- **Read-only by default.** Creating folders, moving, flagging and deleting are enabled per account.
+- Read tools never mark messages as seen. It does not send mail.
+- A user can have several IMAP accounts; passwords are stored encrypted with `APP_KEY`.
+- Add it straight to claude.ai as a custom connector: OAuth discovery and Dynamic Client Registration are built in.
 
-| Araç | Ne yapar |
+## Tools
+
+**Read** (every account):
+
+| Tool | What it does |
 |---|---|
-| `list-accounts` | Kullanıcının hesapları ve yazma izni olup olmadığı |
-| `list-folders` | Klasörler + toplam/okunmamış sayısı |
-| `search-emails` | from / to / subject / text / since / before / unseen ile arama; gövdesiz özet liste (en fazla 50) |
-| `get-email` | UID ile tek mesaj: başlıklar, düz metin gövde (20k karakterde kesilir), ek listesi |
+| `list-accounts` | The user's accounts and whether writing is allowed |
+| `list-folders` | Folders with total/unread counts |
+| `search-emails` | Search by from / to / subject / text / since / before / unseen; summary list without bodies (max 50) |
+| `get-email` | One message by UID: headers, plain-text body (cut at 20k characters), attachment list |
 
-Kriter verilmezse `search-emails` son 7 güne bakar; dev kutularda tam tarama yapmaz.
+Without criteria, `search-emails` looks at the last 7 days; it never scans huge mailboxes in full.
 
-**Yazma** (sadece yazma izni açık hesaplarda; izni olmayan kullanıcılar bu araçları hiç görmez):
+**Write** (only on accounts with write access; users without it never see these tools):
 
-| Araç | Ne yapar |
+| Tool | What it does |
 |---|---|
-| `get-email` + `move_to` / `mark_seen` | Okuduktan sonra mesajı bir klasöre taşır ve/veya okundu işaretler |
-| `move-emails` | Mesajları (en fazla 50) başka klasöre taşır |
-| `flag-emails` | Okundu/okunmadı, yıldızlı/yıldızsız işaretler |
-| `create-folder` | Klasör oluşturur (Türkçe karakter destekli) |
-| `delete-emails` | Varsayılan: Çöp'e taşır. `permanent=true`: sadece Çöp klasöründen kalıcı siler |
-| `delete-folder` | Sadece boş, alt klasörü olmayan, sistem klasörü olmayan klasörleri siler |
+| `get-email` + `move_to` / `mark_seen` | After reading, move the message to a folder and/or mark it seen |
+| `move-emails` | Move messages (max 50) to another folder |
+| `flag-emails` | Mark seen/unseen, flagged/unflagged |
+| `create-folder` | Create a folder (non-ASCII names supported) |
+| `delete-emails` | Default: move to Trash. `permanent=true`: permanently delete, only from the Trash folder |
+| `delete-folder` | Delete only empty folders that have no subfolders and are not system folders |
 
-Örnek istek: *"Okunmamış faturaları oku, özetle ve hepsini Faturalar/2026 klasörüne taşı."*
-Claude `search-emails` ile mesajları bulur. Ardından her biri için `get-email(uid, move_to: "Faturalar/2026", mark_seen: true)` çağırır.
+Example prompt: *"Read the unread invoices, summarise them and move all of them to Invoices/2026."*
+Claude finds the messages with `search-emails`, then calls
+`get-email(uid, move_to: "Invoices/2026", mark_seen: true)` for each one.
 
-### Web arayüzü
-
-`https://alanadin/panel` adresinde giriş yaptıktan sonra (MCP sunucusu kök adreste, `https://alanadin/`):
-
-- **Posta hesapları:** ekle / düzenle / sil, "Bağlantıyı test et", yazma izni ve Çöp klasörü ayarı.
-  Hesap kaydedilmeden önce IMAP bağlantısı test edilir; düzenlemede şifre boş bırakılırsa mevcut şifre korunur.
-- **Bağlı uygulamalar:** OAuth ile bağlanan istemciler (Claude vb.) ve "Bağlantıyı kes" (access + refresh token'lar iptal edilir).
-- **Şifre:** giriş şifresini değiştirme.
-- **Kullanıcılar** (sadece yöneticiler): kullanıcı ekleme (şifre otomatik üretilir, bir kez gösterilir),
-  şifre sıfırlama, yönetici yapma/kaldırma, silme. Yönetici başka kullanıcıların IMAP bilgilerini görmez.
-
-İlk kullanıcı terminalden oluşturulur (`mail:create-user`) ve otomatik yönetici olur; gerisi arayüzden yapılabilir.
-
-### Yazma iznini terminalden açma
-
-```bash
-php artisan mail:set-write sen@ornek.com kalehost on
-php artisan mail:set-write sen@ornek.com kalehost on --trash="INBOX/Trash"   # Çöp klasörü otomatik bulunamazsa
-php artisan mail:set-write sen@ornek.com kalehost off
-```
-
-Çöp klasörü `Trash`, `Deleted Items`, `Çöp`, `Çöp Kutusu` gibi adlardan otomatik bulunur.
-
-## Docker ile kurulum (Nginx Proxy Manager arkasında)
-
-Hazır imaj: `ghcr.io/bahricanli/imap-mcp` (amd64 + arm64). Her `main` push'unda build edilir,
-konteyner açılıp OAuth uçları test edildikten sonra yayınlanır.
+## Quick start (Docker)
 
 ```bash
 mkdir imap-mcp && cd imap-mcp
-curl -O https://raw.githubusercontent.com/bahricanli/imap-mcp/main/docker-compose.yml
-curl -o .env https://raw.githubusercontent.com/bahricanli/imap-mcp/main/.env.example
-
-# .env içinde:
-#   APP_URL=https://mail-mcp.ornek.com          (NPM'deki alan adı)
-#   APP_KEY=   ← aşağıdaki komutun çıktısı
-#   NPM_NETWORK=npm_default                      (NPM'in Docker ağı)
-#   APP_PORT=8080                                (konteynerin dinlediği port; 9000 olamaz)
-echo "base64:$(openssl rand -base64 32)"
-
-docker compose up -d
-docker compose exec mail-mcp php artisan mail:create-user
-docker compose exec mail-mcp php artisan mail:add-account sen@ornek.com
 ```
-
-NPM'in ağ adını bulmak için:
-`docker inspect <npm-konteyneri> -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'`
-
-**NPM'de Proxy Host:**
-
-| Alan | Değer |
-|---|---|
-| Domain Names | `mail-mcp.ornek.com` (APP_URL ile aynı) |
-| Scheme / Forward Hostname / Port | `http` / `mail-mcp` / `.env`'deki `APP_PORT` (varsayılan 8080) |
-| SSL | Let's Encrypt, **Force SSL**, HTTP/2 |
-
-Ek ayar gerekmez: uygulama NPM'in gönderdiği `X-Forwarded-Proto` / `X-Forwarded-Host` başlıklarına
-güvenir, OAuth keşif adresleri `https://` ile üretilir. Konteyner portu dışarı açılmaz.
-
-İlk açılışta SQLite veritabanı ve Passport anahtarları `storage` volume'unda oluşturulur,
-migration'lar otomatik çalışır.
-
-> `APP_KEY`'i yedekle. Kaybedersen kayıtlı IMAP şifreleri çözülemez.
-
-Kontrol: `curl https://mail-mcp.ornek.com/.well-known/oauth-authorization-server` çıktısındaki
-tüm adresler `https://mail-mcp.ornek.com/...` ile başlamalı.
-
-## Docker'sız kurulum
 
 ```bash
-composer install
-cp .env.example .env && php artisan key:generate
-php artisan passport:keys
-php artisan migrate
-php artisan mail:create-user
-php artisan mail:add-account sen@ornek.com
+curl -O https://raw.githubusercontent.com/bahricanli/imap-mcp/main/docker-compose.release.yml
 ```
 
-## Bağlanma
+```bash
+curl -o .env https://raw.githubusercontent.com/bahricanli/imap-mcp/main/.env.example
+```
 
-- **claude.ai:** Ayarlar → Connectors → Add custom connector → `https://alanadin/` (kök adres).
-  Tarayıcıda giriş ekranı, ardından onay ekranı açılır.
-- **Claude Code:** `claude mcp add --transport http mail https://alanadin/`
+Set `APP_URL`, `APP_KEY`, `NPM_NETWORK` and `APP_PORT` in `.env`, then:
+
+```bash
+docker compose -f docker-compose.release.yml up -d
+```
+
+```bash
+docker compose -f docker-compose.release.yml exec mail-mcp php artisan mail:create-user
+```
+
+Images: `ghcr.io/bahricanli/imap-mcp` and `bmericc/imap-mcp` (amd64 + arm64).
+Full walkthrough: [Docker installation](docs/docker-install.md).
+
+## Connecting
+
+- **claude.ai:** Settings → Connectors → Add custom connector → `https://your-domain/` (the root URL).
+  A login screen opens in the browser, followed by a consent screen.
+- **Claude Code:** `claude mcp add --transport http mail https://your-domain/`
 - **Test:** `php artisan mcp:inspector /`
 
-## Nasıl çalışıyor
+The web panel is at `https://your-domain/panel`; the MCP server itself is at the root URL.
 
-```
-Claude ──OAuth 2.1 (PKCE + DCR)──▶ Passport ──▶ / (auth:api)
-                                                  │
-                                    MailServer ── tools ── ImapService ──IMAP/TLS──▶ posta sunucusu
-                                                  │
-                                    mail_accounts (kullanıcı başına, şifreli)
-```
+## Security
 
-Her araç çağrısı kendi IMAP bağlantısını açıp kapatır. Basit ve stateless; yoğun kullanımda
-bağlantı havuzu ya da kısa süreli cache eklenebilir.
+- Use an **app password** instead of your main password for Mailcow / Gmail / Outlook.
+- No open sign-up; users are added with `mail:create-user` or by an admin in the panel. Login attempts are limited to 5 per minute.
+- **Prompt injection:** email content is untrusted data. An incoming message can say "delete this folder".
+  That is why write access is off by default and the server instructions tell the model to write only on the
+  user's explicit request. The real safeguards are server-side:
+  - Deleting moves to Trash first; permanent deletion only works inside Trash, as a separate step.
+  - System folders and non-empty folders cannot be deleted.
+  - At most 50 messages per call.
+  - Every write is logged with user, account, folder and UIDs (`docker compose logs mail-mcp`).
+- Write tools carry the MCP `destructive` / `idempotent` hints, so Claude can ask for confirmation.
 
-## Güvenlik
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
-- Mailcow / Gmail / Outlook için ana şifre yerine **uygulama şifresi** kullan.
-- Açık kayıt yok; kullanıcılar sadece `mail:create-user` ile eklenir. Giriş denemeleri dakikada 5 ile sınırlı.
-- **Prompt injection:** e-posta içeriği güvenilmeyen veridir. Gelen bir mail "bu klasörü sil" diyebilir.
-  Bu yüzden yazma izni varsayılan kapalı. Sunucu talimatları modele yazma işlemlerini sadece kullanıcının
-  açık isteğiyle yapmasını söylüyor. Yine de asıl güvence aşağıdaki sunucu tarafı kurallar:
-  - Silme önce Çöp'e taşır; kalıcı silme sadece Çöp klasöründen, ayrı bir adımla yapılır.
-  - Sistem klasörleri ve dolu klasörler silinemez.
-  - Tek çağrıda en fazla 50 mesaj işlenir.
-  - Tüm yazma işlemleri kullanıcı, hesap, klasör ve uid'lerle loglanır (`docker compose logs mail-mcp`).
-- Yazma araçları MCP `destructive` / `idempotent` işaretleriyle gelir; Claude bunlar için onay isteyebilir.
+## Documentation
 
-## Yol haritası
+| Document | Contents |
+|---|---|
+| [Docker installation](docs/docker-install.md) | Pre-built image or build from source, `.env`, Nginx Proxy Manager, updates, backups, troubleshooting |
+| [Feature guide](docs/features.md) | Every screen of the web panel, with screenshots |
+| [Docker details](docs/docker.md) | Image contents, compose files, tags, CI |
+| [Architecture](docs/architecture.md) | Request flow, OAuth, data model, IMAP handling |
+| [Administration](docs/admin.md) | Artisan commands, users, write access, logs |
+| [Development](docs/development.md) | Local setup, tests, code style |
+| [Changelog](CHANGELOG.md) | Release notes |
+| [Contributing](CONTRIBUTING.md) | How to report bugs and send changes |
+| [Security policy](SECURITY.md) | Supported versions, private reporting |
 
-- [ ] Web panelden hesap ekleme / silme ve yazma izni
-- [ ] Ek indirme (imzalı, süreli URL)
-- [ ] Taslak oluşturma (göndermeden)
-- [ ] Gerçek Dovecot konteyneriyle uçtan uca IMAP testleri (CI)
+## Roadmap
 
-## Lisans
+- [x] Add / delete accounts and set write access from the web panel
+- [ ] Attachment download (signed, expiring URL)
+- [ ] Draft creation (without sending)
+- [ ] End-to-end IMAP tests against a real Dovecot container (CI)
 
-MIT
+## License
+
+[MIT](LICENSE)

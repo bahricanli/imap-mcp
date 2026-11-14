@@ -61,4 +61,15 @@ test "$(jq -r '.authorization_servers[0]' <<<"$prm")" = "https://mail-mcp.exampl
 docker exec mail-mcp-smoke php artisan migrate:status | tail -3
 docker exec mail-mcp-smoke test -f storage/oauth-private.key
 
+# APP_KEY olmadan konteyner açık bir hata ile durmalı.
+docker rm -f mail-mcp-nokey >/dev/null 2>&1 || true
+docker run -d --name mail-mcp-nokey -e APP_KEY= "$IMAGE" >/dev/null
+for _ in $(seq 1 15); do
+  [ "$(docker inspect -f '{{.State.Running}}' mail-mcp-nokey)" = false ] && break
+  sleep 1
+done
+test "$(docker inspect -f '{{.State.Running}}' mail-mcp-nokey)" = false
+docker logs mail-mcp-nokey 2>&1 | grep -q 'APP_KEY tanımlı değil'
+docker rm -f mail-mcp-nokey >/dev/null
+
 echo "SMOKE TEST OK"

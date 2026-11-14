@@ -1,3 +1,7 @@
+# Kaynak koddan çalıştırma: imaj bu checkout'tan "imap-mcp:local" olarak derlenir.
+#   docker compose up -d --build
+# Hazır imajla (derlemeden) çalıştırmak için docker-compose.release.yml kullan.
+#
 # Nginx Proxy Manager arkasında çalışır. Port dışarı açılmaz; NPM konteynere
 # Docker ağı üzerinden "mail-mcp:<APP_PORT>" adıyla ulaşır (APP_PORT .env'de, varsayılan 8080).
 #
@@ -8,9 +12,8 @@
 #   SSL:          Let's Encrypt + Force SSL + HTTP/2
 services:
   mail-mcp:
-    image: ghcr.io/bahricanli/imap-mcp:latest
-    # Kaynaktan build etmek istersen üstteki satırı kapatıp bunu aç:
-    # build: .
+    build: .
+    image: imap-mcp:local
     container_name: mail-mcp
     restart: unless-stopped
     env_file: .env

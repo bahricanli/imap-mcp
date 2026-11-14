@@ -10,6 +10,13 @@ if [ "${NGINX_HTTP_PORT:-8080}" = "9000" ]; then
     exit 1
 fi
 
+# Kod imajın içinde: otomatik üretilen bir anahtar her yeniden oluşturmada değişir ve
+# kayıtlı IMAP şifreleri çözülemez hale gelir. Bu yüzden APP_KEY dışarıdan verilmeli.
+if [ -z "${APP_KEY:-}" ]; then
+    echo "[mail-mcp] HATA: APP_KEY tanımlı değil. Üretmek için: echo \"base64:\$(openssl rand -base64 32)\" ve .env'ye APP_KEY=... olarak yaz." >&2
+    exit 1
+fi
+
 mkdir -p storage/app storage/framework/cache storage/framework/sessions storage/framework/views storage/logs
 
 if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ] && [ ! -f "${DB_DATABASE:-storage/database.sqlite}" ]; then

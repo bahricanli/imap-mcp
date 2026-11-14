@@ -1,0 +1,35 @@
+# Hazır imajla çalıştırma (derleme yok):
+#   docker compose -f docker-compose.release.yml up -d
+#
+# İmaj ve sürüm .env'den değiştirilebilir:
+#   IMAGE=bmericc/imap-mcp      (Docker Hub; varsayılan GHCR)
+#   VERSION=1.0.0               (varsayılan latest)
+#
+# Nginx Proxy Manager ayarları için docker-compose.yml'deki açıklamaya bak.
+services:
+  mail-mcp:
+    image: ${IMAGE:-ghcr.io/bahricanli/imap-mcp}:${VERSION:-latest}
+    container_name: mail-mcp
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/html/storage/database.sqlite
+      LOG_CHANNEL: stderr
+      SESSION_SECURE_COOKIE: "true"
+      NGINX_HTTP_PORT: ${APP_PORT:-8080}   # konteynerin içinde nginx'in dinlediği port
+    # NPM aynı makinede değilse veya doğrudan erişmek istersen portu aç:
+    # ports:
+    #   - "127.0.0.1:${APP_PORT:-8080}:${APP_PORT:-8080}"
+    volumes:
+      - storage:/var/www/html/storage   # SQLite + Passport anahtarları
+    networks:
+      - proxy
+
+volumes:
+  storage:
+
+networks:
+  proxy:
+    external: true
+    name: ${NPM_NETWORK:-npm_default}
