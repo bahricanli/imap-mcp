@@ -2,7 +2,7 @@
     OAuth onay ekranı (Passport). laravel/mcp'nin hazır görünümü Vite derlemesi istediği için
     kendi layout'umuzla yeniden yazıldı. Değişkenler: $client, $user, $scopes, $request, $authToken.
 --}}
-@extends('layouts.app', ['title' => 'Erişim izni · Mail MCP', 'bare' => true])
+@extends('layouts.app', ['title' => 'Erişim izni · imap-mcp', 'bare' => true])
 
 @section('content')
     @php($redirectUri = request()->query('redirect_uri', $client->redirect_uris[0] ?? null))
@@ -10,7 +10,7 @@
 
     <h1>{{ $client->name }} erişim istiyor</h1>
     <p class="muted">
-        <strong>{{ $client->name }}</strong> uygulaması, Mail MCP üzerinden posta hesaplarına erişmek istiyor.
+        <strong>{{ $client->name }}</strong> uygulaması, imap-mcp üzerinden posta hesaplarına erişmek istiyor.
     </p>
 
     <div class="flash" style="margin-bottom:12px">
@@ -23,7 +23,7 @@
         @if ($user->mailAccounts()->where('allow_write', true)->exists())
             <li>Yazma izni olan hesaplarda mail taşıyabilir, işaretleyebilir, klasör oluşturup silebilir ve Çöp'e atabilir.</li>
         @endif
-        <li>IMAP şifrelerini ve Mail MCP şifreni <strong>göremez</strong>.</li>
+        <li>IMAP şifrelerini ve imap-mcp şifreni <strong>göremez</strong>.</li>
         <li>Erişimi istediğin zaman Panel → Bağlı uygulamalar'dan kesebilirsin.</li>
     </ul>
 

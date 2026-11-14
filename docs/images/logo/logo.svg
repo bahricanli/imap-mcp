@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 128" width="520" height="128" role="img" aria-label="imap-mcp">
+  <rect width="128" height="128" rx="28" fill="#1a73e8"/>
+  <rect x="18" y="36" width="66" height="50" rx="9" fill="#fff"/>
+  <path d="M24 44 L51 64 L78 44" fill="none" stroke="#1a73e8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M84 61 H98" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="104" cy="61" r="10" fill="#fff"/>
+  <circle cx="104" cy="61" r="4.5" fill="#34a853"/>
+  <text x="156" y="86" font-family="-apple-system, 'Segoe UI', Inter, 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="-1.5" fill="#111827">imap<tspan fill="#1a73e8">-mcp</tspan></text>
+</svg>

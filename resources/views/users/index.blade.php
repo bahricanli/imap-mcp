@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Kullanıcılar · Mail MCP'])
+@extends('layouts.app', ['title' => 'Kullanıcılar · imap-mcp'])
 
 @section('content')
     @if ($generated = session('generated_password'))
@@ -14,7 +14,7 @@
         <div class="actions" style="justify-content:space-between">
             <div>
                 <h1>Kullanıcılar</h1>
-                <p class="muted" style="margin:0">Mail MCP'ye giriş yapabilen kişiler. Her kullanıcı sadece kendi posta hesaplarını görür.</p>
+                <p class="muted" style="margin:0">imap-mcp'ye giriş yapabilen kişiler. Her kullanıcı sadece kendi posta hesaplarını görür.</p>
             </div>
             <a href="{{ route('users.create') }}" class="btn">Kullanıcı ekle</a>
         </div>

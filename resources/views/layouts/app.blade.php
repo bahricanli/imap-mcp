@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Mail MCP' }}</title>
+    <title>{{ $title ?? 'imap-mcp' }}</title>
+    @include('partials.favicon')
     <style>
         :root { --bg:#f6f7f9; --card:#fff; --text:#1c1f24; --muted:#6b7280; --line:#e5e7eb; --accent:#2563eb; --accent-text:#fff;
                 --err:#b91c1c; --ok:#15803d; --warn-bg:#fef3c7; --warn:#92400e; --chip:#eef2ff; }
@@ -19,7 +20,11 @@
         .card { width:100%; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:24px; margin-bottom:16px; }
         body.center .card { max-width:420px; padding:28px; }
         nav { display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; margin:4px 0 16px; }
-        nav .brand { font-weight:700; margin-right:auto; }
+        nav .brand { font-weight:700; margin-right:auto; display:flex; align-items:center; gap:8px; color:var(--text); text-decoration:none; font-size:15px; }
+        .brand img { display:block; }
+        .mcp { color:#1a73e8; }
+        @media (prefers-color-scheme: dark) { .mcp { color:var(--accent); } }
+        .bare-brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px; margin-bottom:18px; }
         nav a { color:var(--muted); text-decoration:none; font-size:14px; }
         nav a.active, nav a:hover { color:var(--text); }
         h1 { font-size:20px; margin:0 0 4px; } h2 { font-size:16px; margin:0 0 12px; }
@@ -64,7 +69,7 @@
     @unless ($bare)
         <div class="wrap">
             <nav>
-                <span class="brand">Mail MCP</span>
+                <a class="brand" href="{{ route('panel') }}"><img src="{{ asset('logo.svg') }}" alt="" width="24" height="24"> <span>imap<span class="mcp">-mcp</span></span></a>
                 <a href="{{ route('accounts.index') }}" class="{{ request()->routeIs('accounts.*') ? 'active' : '' }}">Posta hesapları</a>
                 <a href="{{ route('connections.index') }}" class="{{ request()->routeIs('connections.*') ? 'active' : '' }}">Bağlı uygulamalar</a>
                 <a href="{{ route('password.edit') }}" class="{{ request()->routeIs('password.*') ? 'active' : '' }}">Şifre</a>
@@ -88,6 +93,7 @@
         </div>
     @else
         <main class="card">
+            <div class="bare-brand"><img src="{{ asset('logo.svg') }}" alt="" width="36" height="36"> <span>imap<span class="mcp">-mcp</span></span></div>
             @yield('content')
         </main>
     @endunless

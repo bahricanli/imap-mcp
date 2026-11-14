@@ -12,7 +12,7 @@ class WebAuthTest extends TestCase
 
     public function test_guest_is_redirected_to_login(): void
     {
-        $this->get('/', ['Accept' => 'text/html'])->assertOk()->assertSee('Mail MCP')->assertSee('Giriş yap');
+        $this->get('/', ['Accept' => 'text/html'])->assertOk()->assertSee('imap-mcp')->assertSee('Giriş yap');
         $this->get('/panel')->assertRedirect(route('login'));
         $this->get('/login')->assertOk()->assertSee('Giriş yap');
         $this->get('/panel/login')->assertRedirect('/login');

@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mail MCP</title>
+    <title>imap-mcp</title>
+    @include('partials.favicon')
     <meta name="description" content="IMAP posta kutularını Claude, ChatGPT ve Cursor gibi yapay zeka istemcilerine güvenle açan, OAuth 2.1 korumalı MCP sunucusu.">
     <style>
         :root { --bg:#f6f7f9; --card:#fff; --text:#1c1f24; --muted:#6b7280; --line:#e5e7eb; --accent:#2563eb; --accent-text:#fff;
@@ -21,8 +22,9 @@
         header.top .brand { font-weight:700; margin-right:auto; display:flex; align-items:center; gap:8px; }
         header.top a { color:var(--muted); text-decoration:none; font-size:14px; }
         header.top a:hover { color:var(--text); }
-        .logo { width:28px; height:28px; border-radius:8px; background:var(--accent); color:var(--accent-text);
-                display:grid; place-items:center; font-size:15px; }
+        .brand img { width:28px; height:28px; display:block; }
+        .mcp { color:#1a73e8; }
+        @media (prefers-color-scheme: dark) { .mcp { color:var(--accent); } }
         .hero { padding:48px 0 40px; }
         .hero h1 { font-size:clamp(30px,5vw,46px); line-height:1.15; margin:0 0 16px; letter-spacing:-0.02em; max-width:18ch; }
         .hero p.lead { font-size:18px; color:var(--muted); max-width:60ch; margin:0 0 28px; }
@@ -66,7 +68,7 @@
 <body>
 <div class="wrap">
     <header class="top">
-        <span class="brand"><span class="logo" aria-hidden="true">✉</span> Mail MCP</span>
+        <span class="brand"><img src="{{ asset('logo.svg') }}" alt="" width="28" height="28"> <span>imap<span class="mcp">-mcp</span></span></span>
         <a href="#araclar">Araçlar</a>
         <a href="#baglan">Bağlan</a>
         @auth
@@ -79,7 +81,7 @@
     <div class="hero">
         <h1>Posta kutun, yapay zeka asistanının elinin altında.</h1>
         <p class="lead">
-            Mail MCP, IMAP hesaplarını Claude, ChatGPT ve Cursor gibi istemcilere
+            imap-mcp, IMAP hesaplarını Claude, ChatGPT ve Cursor gibi istemcilere
             Model Context Protocol üzerinden açar. OAuth 2.1 ile korunur, varsayılan olarak salt-okunurdur ve asla mail göndermez.
         </p>
         <div class="actions">
@@ -99,7 +101,7 @@
     </div>
 
     <section>
-        <h2>Neden Mail MCP?</h2>
+        <h2>Neden imap-mcp?</h2>
         <p class="muted">Asistanına posta kutunu okuma, özetleme ve düzenleme yetkisi ver; kontrol sende kalsın.</p>
         <div class="grid">
             <div class="card">
@@ -164,7 +166,7 @@
     </section>
 
     <footer>
-        <span>Mail MCP · MIT lisansı</span>
+        <span>imap-mcp · MIT lisansı</span>
         <a href="https://github.com/bahricanli/imap-mcp">GitHub</a>
         <a href="{{ url('/.well-known/oauth-authorization-server') }}">OAuth keşif</a>
     </footer>

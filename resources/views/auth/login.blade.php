@@ -1,7 +1,7 @@
-@extends('layouts.app', ['title' => 'Giriş · Mail MCP'])
+@extends('layouts.app', ['title' => 'Giriş · imap-mcp'])
 
 @section('content')
-    <h1>Mail MCP</h1>
+    <h1>Giriş</h1>
     <p class="muted">Bir yapay zeka istemcisine posta kutularına erişim vermek için giriş yap.</p>
 
     <form method="POST" action="{{ route('login') }}">

@@ -1,9 +1,9 @@
-@extends('layouts.app', ['title' => 'Şifre · Mail MCP'])
+@extends('layouts.app', ['title' => 'Şifre · imap-mcp'])
 
 @section('content')
     <section class="card" style="max-width:460px">
         <h1>Şifre değiştir</h1>
-        <p class="muted">Bu, Mail MCP'ye giriş şifren ({{ auth()->user()->email }}). Posta hesaplarının şifreleri ayrı.</p>
+        <p class="muted">Bu, imap-mcp'ye giriş şifren ({{ auth()->user()->email }}). Posta hesaplarının şifreleri ayrı.</p>
 
         <form method="POST" action="{{ route('password.update') }}" novalidate>
             @csrf

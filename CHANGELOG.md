@@ -10,6 +10,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 - `mirror-dockerhub` workflow: copies a published GHCR version to Docker Hub without rebuilding.
 
+### Changed
+
+- New logo and favicon; the home page, panel, login and consent screens show the logo and the name `imap-mcp`
+  instead of "Mail MCP".
+
 ### Fixed
 
 - Docker Hub repository is `bahricanli/imap-mcp`; CI no longer derives it from the login user name.

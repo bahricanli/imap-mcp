@@ -1,5 +1,5 @@
 @php($editing = $account->exists)
-@extends('layouts.app', ['title' => ($editing ? 'Hesabı düzenle' : 'Hesap ekle').' · Mail MCP'])
+@extends('layouts.app', ['title' => ($editing ? 'Hesabı düzenle' : 'Hesap ekle').' · imap-mcp'])
 
 @section('content')
     <section class="card">

@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Kullanıcı ekle · Mail MCP'])
+@extends('layouts.app', ['title' => 'Kullanıcı ekle · imap-mcp'])
 
 @section('content')
     <section class="card" style="max-width:460px">

@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Posta hesapları · Mail MCP'])
+@extends('layouts.app', ['title' => 'Posta hesapları · imap-mcp'])
 
 @section('content')
     <section class="card">
@@ -37,7 +37,7 @@
                             </form>
                             <a href="{{ route('accounts.edit', $account) }}" class="btn secondary">Düzenle</a>
                             <form method="POST" action="{{ route('accounts.destroy', $account) }}"
-                                  onsubmit="return confirm('{{ $account->label }} hesabı Mail MCP\'den kaldırılsın mı? Posta kutusundaki maillere dokunulmaz.')">
+                                  onsubmit="return confirm('{{ $account->label }} hesabı imap-mcp\'den kaldırılsın mı? Posta kutusundaki maillere dokunulmaz.')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="danger">Sil</button>
