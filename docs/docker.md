@@ -69,6 +69,10 @@ Platforms: `linux/amd64`, `linux/arm64`. Tags for release `v1.2.3`: `1.2.3`, `1.
   Docker Hub step is skipped and only GHCR is published.
 - Build cache: GitHub Actions cache, scope `imap-mcp`.
 
+[`.github/workflows/mirror-dockerhub.yml`](../.github/workflows/mirror-dockerhub.yml) copies a version that is already
+on GHCR to Docker Hub without rebuilding it (same digest). Run it by hand with `version` (for example `1.0.1`);
+`aliases` also moves `1.0`, `1` and `latest`.
+
 The smoke test starts the container as if it were behind a proxy and checks `/up`, `/login`, the home page,
 the OAuth discovery documents, the `401` + `WWW-Authenticate` answer of the MCP endpoint, migrations, the
 Passport key, and that the container refuses to start without `APP_KEY`.

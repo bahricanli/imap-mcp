@@ -1,0 +1,70 @@
+name: mirror-dockerhub
+
+# GHCR'de zaten yayınlanmış bir sürümü yeniden derlemeden Docker Hub'a kopyalar.
+# Digest'ler GHCR ile aynı kalır. Elle çalıştırılır (Actions → mirror-dockerhub → Run workflow).
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Kopyalanacak sürüm (örn. 1.0.1)'
+        required: true
+      aliases:
+        description: 'major.minor, major ve latest etiketlerini de bu sürüme taşı'
+        type: boolean
+        default: true
+
+env:
+  SOURCE: ghcr.io/${{ github.repository_owner }}/imap-mcp
+  TARGET: bahricanli/imap-mcp   # hub.docker.com/r/bahricanli/imap-mcp
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Validate version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::version X.Y.Z biçiminde olmalı: $VERSION"
+            exit 1
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Copy
+        env:
+          VERSION: ${{ inputs.version }}
+          ALIASES: ${{ inputs.aliases }}
+        run: |
+          tags=(-t "$TARGET:$VERSION")
+          if [ "$ALIASES" = true ]; then
+            tags+=(-t "$TARGET:${VERSION%.*}" -t "$TARGET:${VERSION%%.*}" -t "$TARGET:latest")
+          fi
+          echo "Hedefler: ${tags[*]}"
+          docker buildx imagetools create "${tags[@]}" "$SOURCE:$VERSION"
+
+      - name: Verify
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          src=$(docker buildx imagetools inspect "$SOURCE:$VERSION" --format '{{json .Manifest.Digest}}')
+          dst=$(docker buildx imagetools inspect "$TARGET:$VERSION" --format '{{json .Manifest.Digest}}')
+          echo "GHCR: $src  Docker Hub: $dst"
+          test "$src" = "$dst"

@@ -69,6 +69,10 @@ Platformlar: `linux/amd64`, `linux/arm64`. `v1.2.3` sürümünün etiketleri: `1
   atlanır ve yalnızca GHCR'ye yayınlanır.
 - Derleme önbelleği: GitHub Actions cache, scope `imap-mcp`.
 
+[`.github/workflows/mirror-dockerhub.yml`](../.github/workflows/mirror-dockerhub.yml) GHCR'de zaten yayınlanmış bir sürümü
+yeniden derlemeden Docker Hub'a kopyalar (aynı digest). `version` ile elle çalıştırılır (örn. `1.0.1`);
+`aliases` açıksa `1.0`, `1` ve `latest` de bu sürüme taşınır.
+
 Duman testi konteyneri proxy arkasındaymış gibi başlatır ve şunları kontrol eder: `/up`, `/login`, ana sayfa,
 OAuth keşif belgeleri, MCP ucunun `401` + `WWW-Authenticate` cevabı, migration'lar, Passport anahtarı ve
 `APP_KEY` olmadan konteynerin açılmadığı.
