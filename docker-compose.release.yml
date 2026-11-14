@@ -2,7 +2,7 @@
 #   docker compose -f docker-compose.release.yml up -d
 #
 # İmaj ve sürüm .env'den değiştirilebilir:
-#   IMAGE=bmericc/imap-mcp      (Docker Hub; varsayılan GHCR)
+#   IMAGE=bahricanli/imap-mcp      (Docker Hub; varsayılan GHCR)
 #   VERSION=1.0.0               (varsayılan latest)
 #
 # Nginx Proxy Manager ayarları için docker-compose.yml'deki açıklamaya bak.

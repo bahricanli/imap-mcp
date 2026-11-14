@@ -67,7 +67,7 @@ docker compose -f docker-compose.release.yml up -d
 docker compose -f docker-compose.release.yml exec mail-mcp php artisan mail:create-user
 ```
 
-Images: `ghcr.io/bahricanli/imap-mcp` and `bmericc/imap-mcp` (amd64 + arm64).
+Images: `ghcr.io/bahricanli/imap-mcp` and `bahricanli/imap-mcp` (amd64 + arm64).
 Full walkthrough: [Docker installation](docs/docker-install.md).
 
 ## Connecting

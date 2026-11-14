@@ -11,6 +11,7 @@ on:
 
 env:
   IMAGE_NAME: imap-mcp
+  DOCKERHUB_NAMESPACE: bahricanli   # hub.docker.com/r/bahricanli/imap-mcp
 
 jobs:
   image:
@@ -66,7 +67,7 @@ jobs:
             echo "dockerhub=true" >> "$GITHUB_OUTPUT"
             echo "images<<EOF" >> "$GITHUB_OUTPUT"
             echo "ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
-            echo "${DOCKERHUB_USERNAME}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+            echo "${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
             echo "EOF" >> "$GITHUB_OUTPUT"
           else
             echo "dockerhub=false" >> "$GITHUB_OUTPUT"

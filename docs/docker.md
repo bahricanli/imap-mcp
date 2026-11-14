@@ -53,7 +53,7 @@ Use it for host-specific changes such as publishing a port.
 | Registry | Repository |
 |---|---|
 | GitHub Container Registry | `ghcr.io/bahricanli/imap-mcp` |
-| Docker Hub | `bmericc/imap-mcp` |
+| Docker Hub | `bahricanli/imap-mcp` |
 
 Platforms: `linux/amd64`, `linux/arm64`. Tags for release `v1.2.3`: `1.2.3`, `1.2`, `1`, `latest`.
 

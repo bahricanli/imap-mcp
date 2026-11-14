@@ -31,7 +31,7 @@ imap-mcp calls no paid third-party API. The only secrets are:
 | `NPM_NETWORK` | Yes (with NPM) | Name of the Docker network NPM is attached to. | `docker inspect <npm-container> -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'` |
 | `APP_PORT` | No (default `8080`) | Port nginx listens on inside the container. NPM's Forward Port must match. `9000` is not allowed (PHP-FPM uses it). | Any free port |
 | `TRUSTED_PROXIES` | No (default `*`) | Proxies whose `X-Forwarded-*` headers are trusted. `*` is safe while the container port is not published. | NPM's IP or subnet if you publish the port |
-| `IMAGE`, `VERSION` | No | Only for `docker-compose.release.yml`: which image and tag to run. | `IMAGE=bmericc/imap-mcp`, `VERSION=1.0.0` |
+| `IMAGE`, `VERSION` | No | Only for `docker-compose.release.yml`: which image and tag to run. | `IMAGE=bahricanli/imap-mcp`, `VERSION=1.0.0` |
 | `AUTORUN_LARAVEL_MIGRATION` | No (default `true`) | Set to `false` to skip automatic migrations at start-up. | — |
 | IMAP password | Per account | Entered in the web panel or with `mail:add-account`, stored encrypted. Never sent to the AI. | Your mail provider. Use an app password for Gmail, Outlook and Mailcow. |
 
@@ -48,7 +48,7 @@ No callback URL needs to be registered. AI clients register themselves through D
 Images are published for `linux/amd64` and `linux/arm64`:
 
 - `ghcr.io/bahricanli/imap-mcp`
-- `bmericc/imap-mcp` (Docker Hub)
+- `bahricanli/imap-mcp` (Docker Hub)
 
 Tags: `1.2.3`, `1.2`, `1`, `latest`.
 
@@ -77,7 +77,7 @@ Tags: `1.2.3`, `1.2`, `1`, `latest`.
    ```
 
 5. Edit `.env`: set `APP_KEY`, `APP_URL`, `NPM_NETWORK` and, if needed, `APP_PORT`.
-   To pin a version or use Docker Hub, add `VERSION=1.0.0` and/or `IMAGE=bmericc/imap-mcp`.
+   To pin a version or use Docker Hub, add `VERSION=1.0.0` and/or `IMAGE=bahricanli/imap-mcp`.
 
 6. Start it:
 

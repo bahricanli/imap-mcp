@@ -30,7 +30,7 @@ imap-mcp ücretli bir dış API çağırmaz. Tek gizli bilgiler şunlar:
 | `NPM_NETWORK` | Evet (NPM ile) | NPM'in bağlı olduğu Docker ağının adı. | `docker inspect <npm-konteyneri> -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'` |
 | `APP_PORT` | Hayır (varsayılan `8080`) | Konteyner içinde nginx'in dinlediği port. NPM'deki Forward Port bununla aynı olmalı. `9000` olamaz (PHP-FPM'in portu). | Boş herhangi bir port |
 | `TRUSTED_PROXIES` | Hayır (varsayılan `*`) | `X-Forwarded-*` başlıklarına güvenilen proxy'ler. Konteyner portu dışarı açık değilken `*` güvenli. | Portu açarsan NPM'in IP'si veya alt ağı |
-| `IMAGE`, `VERSION` | Hayır | Yalnızca `docker-compose.release.yml` için: hangi imaj ve etiket çalışacak. | `IMAGE=bmericc/imap-mcp`, `VERSION=1.0.0` |
+| `IMAGE`, `VERSION` | Hayır | Yalnızca `docker-compose.release.yml` için: hangi imaj ve etiket çalışacak. | `IMAGE=bahricanli/imap-mcp`, `VERSION=1.0.0` |
 | `AUTORUN_LARAVEL_MIGRATION` | Hayır (varsayılan `true`) | `false` yapılırsa açılışta migration'lar çalışmaz. | — |
 | IMAP şifresi | Hesap başına | Web panelinden veya `mail:add-account` ile girilir, şifreli saklanır. Yapay zekaya hiç gönderilmez. | Posta sağlayıcın. Gmail, Outlook ve Mailcow için uygulama şifresi kullan. |
 
@@ -47,7 +47,7 @@ yönlendirme alan adlarına izin verilir.
 İmajlar `linux/amd64` ve `linux/arm64` için yayınlanır:
 
 - `ghcr.io/bahricanli/imap-mcp`
-- `bmericc/imap-mcp` (Docker Hub)
+- `bahricanli/imap-mcp` (Docker Hub)
 
 Etiketler: `1.2.3`, `1.2`, `1`, `latest`.
 
@@ -76,7 +76,7 @@ Etiketler: `1.2.3`, `1.2`, `1`, `latest`.
    ```
 
 5. `.env`'yi düzenle: `APP_KEY`, `APP_URL`, `NPM_NETWORK` ve gerekirse `APP_PORT`.
-   Sürüm sabitlemek veya Docker Hub kullanmak için `VERSION=1.0.0` ve/veya `IMAGE=bmericc/imap-mcp` ekle.
+   Sürüm sabitlemek veya Docker Hub kullanmak için `VERSION=1.0.0` ve/veya `IMAGE=bahricanli/imap-mcp` ekle.
 
 6. Başlat:
 

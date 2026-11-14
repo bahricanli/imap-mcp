@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Fixed
+
+- Docker Hub repository is `bahricanli/imap-mcp`; CI no longer derives it from the login user name.
+
 ## [1.0.1] - 2026-11-14
 
 ### Changed

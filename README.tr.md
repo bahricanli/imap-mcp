@@ -67,7 +67,7 @@ docker compose -f docker-compose.release.yml up -d
 docker compose -f docker-compose.release.yml exec mail-mcp php artisan mail:create-user
 ```
 
-İmajlar: `ghcr.io/bahricanli/imap-mcp` ve `bmericc/imap-mcp` (amd64 + arm64).
+İmajlar: `ghcr.io/bahricanli/imap-mcp` ve `bahricanli/imap-mcp` (amd64 + arm64).
 Adım adım anlatım: [Docker ile kurulum](docs/docker-install.tr.md).
 
 ## Bağlanma

@@ -53,7 +53,7 @@ Port açmak gibi makineye özel değişiklikler için kullan.
 | Registry | Repo |
 |---|---|
 | GitHub Container Registry | `ghcr.io/bahricanli/imap-mcp` |
-| Docker Hub | `bmericc/imap-mcp` |
+| Docker Hub | `bahricanli/imap-mcp` |
 
 Platformlar: `linux/amd64`, `linux/arm64`. `v1.2.3` sürümünün etiketleri: `1.2.3`, `1.2`, `1`, `latest`.
 
