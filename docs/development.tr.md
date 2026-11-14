@@ -6,7 +6,7 @@
 
 ## Gereksinimler
 
-- `mbstring`, `pdo_sqlite`, `openssl` eklentileriyle PHP 8.3+
+- `mbstring`, `pdo_sqlite`, `openssl` eklentileriyle PHP 8.4+
 - Composer 2
 - Docker (yalnızca imaj ve duman testi için)
 

@@ -6,7 +6,7 @@
 
 ## Requirements
 
-- PHP 8.3+ with `mbstring`, `pdo_sqlite`, `openssl`
+- PHP 8.4+ with `mbstring`, `pdo_sqlite`, `openssl`
 - Composer 2
 - Docker (only for the image and the smoke test)
 

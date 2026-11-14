@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-14
+
+### Changed
+
+- `composer.lock` is now committed, so every build of a tag installs the same dependency versions.
+- PHP 8.4 or newer is required (`config.platform.php` = 8.4.1), matching the Docker image.
+- Updated dependencies to their latest versions and raised the minimum constraints in `composer.json`:
+  Laravel 13.42, laravel/mcp 1.2, laravel/tinker 3.1, Symfony 8.1, PHPUnit 13.4 (dev).
+
+### Security
+
+- `phpseclib/phpseclib` must be 4.0.3 or newer (`conflict` in `composer.json`, GHSA-w3p9-g4p2-h3rr).
+  This keeps `laravel/passport` on 13.10.0, because 13.11.0 requires exactly the vulnerable phpseclib 4.0.1.
+
 ## [1.0.0] - 2026-11-14
 
 First public release.
@@ -30,5 +44,6 @@ First public release.
 - The container refuses to start without `APP_KEY` or with `APP_PORT=9000`.
 - English and Turkish documentation.
 
-[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/bahricanli/imap-mcp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/bahricanli/imap-mcp/releases/tag/v1.0.0
