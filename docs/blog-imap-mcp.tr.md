@@ -184,7 +184,7 @@ kayıtlı şifreler çözülemiyor. Anahtar tanımlı değilse container hiç a�
 - `NPM_NETWORK`: Nginx Proxy Manager'ın bağlı olduğu Docker ağının adı
 - `APP_PORT`: Container içinde nginx'in dinlediği port; varsayılan `8080`
 
-Belirli bir sürüme sabitlemek isterseniz `VERSION=1.0.1`, Docker Hub'ı kullanmak isterseniz
+Belirli bir sürüme sabitlemek isterseniz `VERSION=1.0.2`, Docker Hub'ı kullanmak isterseniz
 `IMAGE=bahricanli/imap-mcp` ekleyebilirsiniz.
 
 Başlatıp ilk kullanıcıyı oluşturun. İlk kullanıcı otomatik olarak yönetici oluyor:

@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-14
+
 ### Added
 
 - `mirror-dockerhub` workflow: copies a published GHCR version to Docker Hub without rebuilding.
@@ -14,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 - New logo and favicon; the home page, panel, login and consent screens show the logo and the name `imap-mcp`
   instead of "Mail MCP".
+- Documentation screenshots show the new logo.
 
 ### Fixed
 
@@ -57,6 +60,7 @@ First public release.
 - The container refuses to start without `APP_KEY` or with `APP_PORT=9000`.
 - English and Turkish documentation.
 
-[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/bahricanli/imap-mcp/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/bahricanli/imap-mcp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/bahricanli/imap-mcp/releases/tag/v1.0.0

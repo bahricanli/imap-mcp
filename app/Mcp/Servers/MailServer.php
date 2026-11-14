@@ -17,7 +17,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Mail')]
-#[Version('1.0.1')]
+#[Version('1.0.2')]
 #[Instructions(<<<'TXT'
 Kullanıcının kendi IMAP posta kutularına erişim.
 Okuma: list-accounts → list-folders → search-emails → get-email. Okuma araçları mesajları okundu işaretlemez.
