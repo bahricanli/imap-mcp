@@ -113,3 +113,44 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ env.IMAGE_NAME }}
           cache-to: type=gha,mode=max,scope=${{ env.IMAGE_NAME }}
+
+  # 3) İmajlar yayınlandıktan sonra tag için GitHub Release sayfası aç.
+  #    Notlar CHANGELOG.md'deki "## [X.Y.Z]" bölümünden alınır. Release zaten varsa dokunulmaz.
+  release:
+    needs: image
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "::notice::$TAG için release zaten var; atlanıyor."
+            exit 0
+          fi
+          awk -v v="$VERSION" '
+            /^## \[/ { if (found) exit; if (index($0, "## [" v "]") == 1) { found = 1; next } }
+            /^\[Unreleased\]:/ { if (found) exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::CHANGELOG.md içinde [$VERSION] bölümü yok."
+            exit 1
+          fi
+          {
+            echo
+            echo "### Docker images"
+            echo
+            echo "- \`ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${VERSION}\`"
+            echo "- \`${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}:${VERSION}\`"
+            echo
+            echo "linux/amd64 and linux/arm64. Setup: [docs/docker-install.md](https://github.com/${{ github.repository }}/blob/${TAG}/docs/docker-install.md)"
+          } >> notes.md
+          gh release create "$TAG" --verify-tag --title "${{ env.IMAGE_NAME }} ${VERSION}" --notes-file notes.md

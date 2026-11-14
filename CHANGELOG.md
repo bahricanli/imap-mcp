@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+
+- A GitHub release is created automatically for each version tag, with notes from this file.
+
 ## [1.0.2] - 2026-11-14
 
 ### Added

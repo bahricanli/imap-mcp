@@ -65,6 +65,9 @@ Platformlar: `linux/amd64`, `linux/arm64`. `v1.2.3` sürümünün etiketleri: `1
   [`scripts/smoke-test.sh`](../scripts/smoke-test.sh) çalışır. Hiçbir şey yayınlanmaz.
 - **`v*.*.*` tag'leri:** aynı test, ardından çok platformlu derleme GHCR'ye ve Docker Hub'a gönderilir.
   "Use workflow from" alanında bir tag seçilerek elle de başlatılabilir (`workflow_dispatch`).
+- **GitHub release:** imajlar yayınlandıktan sonra tag için bir release açılır. Notlar
+  [`CHANGELOG.md`](../CHANGELOG.md) içindeki ilgili `## [X.Y.Z]` bölümünden alınır; bölüm yoksa iş hata verir.
+  Zaten var olan release'e dokunulmaz.
 - Docker Hub için `DOCKERHUB_USERNAME` ve `DOCKERHUB_TOKEN` repo secret'ları gerekir. Yoksa Docker Hub adımı
   atlanır ve yalnızca GHCR'ye yayınlanır.
 - Derleme önbelleği: GitHub Actions cache, scope `imap-mcp`.

@@ -65,6 +65,9 @@ Platforms: `linux/amd64`, `linux/arm64`. Tags for release `v1.2.3`: `1.2.3`, `1.
   [`scripts/smoke-test.sh`](../scripts/smoke-test.sh). Nothing is published.
 - **`v*.*.*` tags:** the same test, then a multi-platform build pushed to GHCR and Docker Hub.
   It can also be started by hand (`workflow_dispatch`) by selecting a tag under "Use workflow from".
+- **GitHub release:** after the images are published, a release is created for the tag. Its notes come
+  from the matching `## [X.Y.Z]` section of [`CHANGELOG.md`](../CHANGELOG.md); the job fails if that section
+  is missing. An existing release is left untouched.
 - Docker Hub needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets. Without them the
   Docker Hub step is skipped and only GHCR is published.
 - Build cache: GitHub Actions cache, scope `imap-mcp`.
