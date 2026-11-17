@@ -10,7 +10,7 @@
   <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml"><img src="https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white" alt="PHP 8.4"></a>
   <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white" alt="Laravel 13"></a>
   <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-server-6E56CF" alt="Model Context Protocol server"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="GPL-3.0"></a>
 </p>
 
 IMAP posta kutularını yapay zeka istemcilerine (Claude, ChatGPT, Cursor…) açan, OAuth 2.1 ile
@@ -128,4 +128,4 @@ Güvenlik açığı bildirmek için: [SECURITY.md](SECURITY.md).
 
 ## Lisans
 
-[MIT](LICENSE)
+[GNU General Public License v3.0 veya sonrası](LICENSE) (GPL-3.0-or-later) ile lisanslanmıştır.

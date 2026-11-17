@@ -55,4 +55,4 @@ APP_PORT=8090 bash scripts/smoke-test.sh imap-mcp:test
 
 ## License
 
-By contributing you agree that your contributions are licensed under the [MIT License](LICENSE).
+By contributing you agree that your contributions are licensed under the [GNU General Public License v3.0 or later](LICENSE).
