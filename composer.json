@@ -10,7 +10,7 @@
         "laravel",
         "claude"
     ],
-    "license": "MIT",
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.4",
         "laravel/framework": "^13.42",

@@ -259,7 +259,7 @@ Yol haritasında şunlar var:
 Taslak oluşturma özelliğini özellikle önemsiyorum. Asistanın yanıtı hazırlayıp taslaklara koyması, son
 kontrolü ve gönderimi ise benim yapmam, bence e-posta için doğru denge.
 
-Proje **MIT lisansıyla** açık kaynak olarak yayında:
+Proje **GPL-3.0 lisansıyla** açık kaynak olarak yayında:
 
 **<https://github.com/bahricanli/imap-mcp>**
 

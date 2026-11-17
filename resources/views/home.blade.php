@@ -166,7 +166,7 @@
     </section>
 
     <footer>
-        <span>imap-mcp · MIT lisansı</span>
+        <span>imap-mcp · GPL-3.0 lisansı</span>
         <a href="https://github.com/bahricanli/imap-mcp">GitHub</a>
         <a href="{{ url('/.well-known/oauth-authorization-server') }}">OAuth keşif</a>
     </footer>

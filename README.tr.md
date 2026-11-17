@@ -2,6 +2,18 @@
 
 # imap-mcp
 
+<p align="center">
+  <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml"><img src="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/bahricanli/imap-mcp"><img src="https://api.scorecard.dev/projects/github.com/bahricanli/imap-mcp/badge" alt="OpenSSF Scorecard"></a>
+  <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/docker.yml"><img src="https://github.com/bahricanli/imap-mcp/actions/workflows/docker.yml/badge.svg" alt="Docker image"></a>
+  <a href="https://github.com/bahricanli/imap-mcp/releases/latest"><img src="https://img.shields.io/github/v/release/bahricanli/imap-mcp" alt="Latest release"></a>
+  <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml"><img src="https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white" alt="PHP 8.4"></a>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white" alt="Laravel 13"></a>
+  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-server-6E56CF" alt="Model Context Protocol server"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="GPL-3.0"></a>
+  <a href="https://github.com/sponsors/bmericc"><img src="https://img.shields.io/badge/sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors" alt="Sponsor"></a>
+</p>
+
 IMAP posta kutularını yapay zeka istemcilerine (Claude, ChatGPT, Cursor…) açan, OAuth 2.1 ile
 korunan bir MCP sunucusu. Laravel 13 + [laravel/mcp](https://github.com/laravel/mcp)
 + [webklex/php-imap](https://github.com/Webklex/php-imap).
@@ -117,4 +129,4 @@ Güvenlik açığı bildirmek için: [SECURITY.md](SECURITY.md).
 
 ## Lisans
 
-[MIT](LICENSE)
+[GNU General Public License v3.0 veya sonrası](LICENSE) (GPL-3.0-or-later) ile lisanslanmıştır.
