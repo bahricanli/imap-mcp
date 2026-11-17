@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml"><img src="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/bahricanli/imap-mcp"><img src="https://api.scorecard.dev/projects/github.com/bahricanli/imap-mcp/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/docker.yml"><img src="https://github.com/bahricanli/imap-mcp/actions/workflows/docker.yml/badge.svg" alt="Docker image"></a>
   <a href="https://github.com/bahricanli/imap-mcp/releases/latest"><img src="https://img.shields.io/github/v/release/bahricanli/imap-mcp" alt="Latest release"></a>
   <a href="https://github.com/bahricanli/imap-mcp/actions/workflows/tests.yml"><img src="https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white" alt="PHP 8.4"></a>
