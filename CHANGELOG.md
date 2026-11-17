@@ -6,9 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-17
+
+### Changed
+
+- **License changed from MIT to GPL-3.0-or-later.** `LICENSE`, `composer.json`, the README and the home page
+  footer say so. Versions up to 1.0.2 stay available under the MIT license.
+- The Docker image is built on a `serversideup/php:8.4-fpm-nginx` base pinned by digest; GitHub Actions are
+  pinned to commit SHAs.
+- `.github` is no longer excluded from source archives.
+
 ### Added
 
 - A GitHub release is created automatically for each version tag, with notes from this file.
+- Dependabot keeps GitHub Actions, Composer, npm and the Docker base image up to date; a CodeQL workflow and
+  OpenSSF Scorecard run in CI.
+- README badges and a GitHub Sponsors link.
 
 ## [1.0.2] - 2026-11-14
 
@@ -64,7 +77,8 @@ First public release.
 - The container refuses to start without `APP_KEY` or with `APP_PORT=9000`.
 - English and Turkish documentation.
 
-[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/bahricanli/imap-mcp/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/bahricanli/imap-mcp/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/bahricanli/imap-mcp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/bahricanli/imap-mcp/releases/tag/v1.0.0
