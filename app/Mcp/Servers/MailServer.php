@@ -17,7 +17,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Attributes\Version;
 
 #[Name('Mail')]
-#[Version('1.0.4')]
+#[Version(MailServer::VERSION)]
 #[Instructions(<<<'TXT'
 Kullanıcının kendi IMAP posta kutularına erişim.
 Okuma: list-accounts → list-folders → search-emails → get-email. Okuma araçları mesajları okundu işaretlemez.
@@ -32,6 +32,9 @@ Kurallar:
 TXT)]
 class MailServer extends Server
 {
+    /** Application version; shown in the web UI footer (config app.version) and sent to MCP clients. */
+    public const VERSION = '1.0.5';
+
     protected array $tools = [
         ListAccountsTool::class,
         ListFoldersTool::class,

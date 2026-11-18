@@ -18,6 +18,15 @@ class WebAuthTest extends TestCase
         $this->get('/panel/login')->assertRedirect('/login');
     }
 
+    public function test_footer_shows_version(): void
+    {
+        $footer = 'imap-mcp '.config('app.version');
+
+        $this->get('/', ['Accept' => 'text/html'])->assertOk()->assertSee($footer);
+        $this->get('/login')->assertOk()->assertSee($footer);
+        $this->actingAs(User::factory()->create())->get(route('accounts.index'))->assertOk()->assertSee($footer);
+    }
+
     public function test_user_can_log_in(): void
     {
         $user = User::factory()->create(['password' => 'dogru-sifre-123']);

@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // imap-mcp release version, shown in the web UI footer.
+    'version' => App\Mcp\Servers\MailServer::VERSION,
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
