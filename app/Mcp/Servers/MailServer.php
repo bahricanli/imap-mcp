@@ -33,7 +33,7 @@ TXT)]
 class MailServer extends Server
 {
     /** Application version; shown in the web UI footer (config app.version) and sent to MCP clients. */
-    public const VERSION = '1.0.4';
+    public const VERSION = '1.0.5';
 
     protected array $tools = [
         ListAccountsTool::class,
