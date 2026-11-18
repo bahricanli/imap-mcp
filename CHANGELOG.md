@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+
+- The web UI footer shows the running version next to the app name. The version now lives in one place,
+  `MailServer::VERSION`, which also feeds the MCP server version and `config('app.version')`.
+
 ## [1.0.4] - 2026-11-18
 
 ### Changed

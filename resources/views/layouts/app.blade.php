@@ -61,6 +61,8 @@
         code { font-size:13px; overflow-wrap:anywhere; }
         .link { background:none; color:var(--accent); padding:0; width:auto; font-weight:400; border:0; margin:0; }
         fieldset { border:1px solid var(--line); border-radius:8px; padding:4px 16px 16px; margin:18px 0 0; }
+        .app-footer { margin-top:8px; font-size:12px; color:var(--muted); text-align:center; }
+        .app-footer a { color:var(--muted); }
         legend { font-size:13px; color:var(--muted); padding:0 6px; }
     </style>
 </head>
@@ -90,12 +92,14 @@
             @endif
 
             @yield('content')
+            <footer class="app-footer">imap-mcp {{ config('app.version') }} · <a href="https://github.com/bahricanli/imap-mcp">GitHub</a></footer>
         </div>
     @else
         <main class="card">
             <div class="bare-brand"><img src="{{ asset('logo.svg') }}" alt="" width="36" height="36"> <span>imap<span class="mcp">-mcp</span></span></div>
             @yield('content')
         </main>
+        <footer class="app-footer">imap-mcp {{ config('app.version') }} · <a href="https://github.com/bahricanli/imap-mcp">GitHub</a></footer>
     @endunless
 </body>
 </html>
