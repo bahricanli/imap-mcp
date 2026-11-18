@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-18
+
+### Changed
+
+- Dependency updates: `laravel/passport` 13.12.0, `laravel/tinker` 3.2.0, `laravel/framework` 13.43.0,
+  `guzzlehttp/guzzle` 8.5.2, `monolog/monolog` 3.13.0, `ramsey/uuid` 4.10.0, `firebase/php-jwt` 7.2.2 and
+  `symfony/polyfill-php85` 1.44.0.
+- GitHub Actions updated to their latest releases (still pinned to commit SHAs).
+
 ## [1.0.3] - 2026-11-17
 
 ### Changed
@@ -77,7 +86,8 @@ First public release.
 - The container refuses to start without `APP_KEY` or with `APP_PORT=9000`.
 - English and Turkish documentation.
 
-[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/bahricanli/imap-mcp/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/bahricanli/imap-mcp/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/bahricanli/imap-mcp/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/bahricanli/imap-mcp/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/bahricanli/imap-mcp/compare/v1.0.0...v1.0.1
